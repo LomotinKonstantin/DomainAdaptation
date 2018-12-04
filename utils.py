@@ -60,7 +60,7 @@ def rnd_labeled_data_generator(X_array, y_array):
         x = np.reshape(x, (1, *x.shape))
         y = y_array[index]
         y = np.array([y])
-        y = np.reshape(y, (1, *y.shape))
+        y = np.reshape(y, (1, 1, *y.shape))
         yield x, y
 
 
