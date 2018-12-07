@@ -3,7 +3,7 @@ import numpy as np
 from IPython.display import display, clear_output
 
 
-def load_vectors(path: str, manually=False) -> pd.DataFrame:
+def load_vectors(path: str, manually=False, verbose=True) -> pd.DataFrame:
     if not manually:
         return pd.read_csv(path, sep="\t")
     else:
@@ -15,8 +15,9 @@ def load_vectors(path: str, manually=False) -> pd.DataFrame:
         cntr = 1
         with open(path) as file:
             for line in file:
-                clear_output(True)
-                display("Reading line %d" % cntr)
+                if verbose:
+                    clear_output(True)
+                    display("Reading line %d" % cntr)
                 if not first_line_skipped:
                     first_line_skipped = True
                     continue
@@ -38,7 +39,7 @@ def ae_data_generator(X_train):
         # Попытка поймать баг
         if len(x.shape) != 3:
             print(x)
-            yield x, x
+        yield x, x
 
             
 def conseq_labeled_data_generator(X_array, y_array):
