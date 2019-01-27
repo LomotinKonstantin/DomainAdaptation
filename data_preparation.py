@@ -1,18 +1,24 @@
-
-# coding: utf-8
-
-# In[1]:
-
+import urllib.request
 import os
-import tensorflow as tf
 import numpy as np
-import pandas as pd
 import json
 from collections import OrderedDict
-from matplotlib import pyplot as plt
-# from IPython.display import display, clear_output
+from nltk.corpus import stopwords
+from nltk import word_tokenize
+from string import punctuation
+import re
+import pandas as pd
+from gensim.models import Word2Vec
+import gzip
 
-# get_ipython().magic('matplotlib inline')
+
+def load_data():
+    urllib.request.urlretrieve("http://snap.stanford.edu/data/amazon/productGraph/categoryFiles"
+                               "/reviews_Movies_and_TV_5.json.gz",
+                               "../data/Movies_and_TV_5.json.gz")
+    urllib.request.urlretrieve("http://snap.stanford.edu/data/amazon/productGraph/categoryFiles/reviews_Electronics_5"
+                               ".json.gz",
+                               "../data/Electronics_5.json.gz")
 
 
 # ## Датасеты
@@ -27,9 +33,9 @@ from matplotlib import pyplot as plt
 
 data_path = {
     "music": os.path.join("..", "data", "Musical_Instruments_5.json"),
-    "auto":  os.path.join("..", "data", "Automotive_5.json"),
-    "movies":    os.path.join("..", "data", "Movies_and_TV_5.json"),
-    "electr":    os.path.join("..", "data", "Electronics_5.json"),
+    "auto": os.path.join("..", "data", "Automotive_5.json"),
+    "movies": os.path.join("..", "data", "Movies_and_TV_5.json"),
+    "electr": os.path.join("..", "data", "Electronics_5.json"),
 }
 
 
@@ -51,8 +57,8 @@ def load_json(path: str, columns=["helpful", "reviewText", "summary", "overall"]
 
 def raw_data_generator(path: str, columns=["helpful", "reviewText", "summary", "overall"]) -> OrderedDict:
     if not os.path.exists(path):
-        raise FileExistsError("'%s' does not exists!" % path)
-    with open(path) as fp:
+        raise FileExistsError("'%s' does not exist!" % path)
+    with gzip.open(path) as fp:
         for line in fp:
             parsed = json.loads(line, object_pairs_hook=OrderedDict)
             yield {key: parsed[key] for key in columns}
@@ -75,23 +81,6 @@ def review_len(data: pd.DataFrame) -> np.array:
     return np.array(list(map(lambda a: len(a.split()), data["reviewText"])))
 
 
-# In[5]:
-
-# mus_df = load_json(data_path["music"])
-
-
-# In[ ]:
-
-# mus_df.head()
-
-
-# In[47]:
-
-# lens = review_len(mus_df)
-# plt.hist(lens, range=(0, 750))
-# np.mean(lens)
-
-
 # ## Предобработка
 # * Перевод в нижний регистр
 # * Удаление ненужных символов
@@ -100,20 +89,13 @@ def review_len(data: pd.DataFrame) -> np.array:
 # 
 # Без лемматизации и стемминга
 
-# In[4]:
-
-from nltk.corpus import stopwords
-from nltk import word_tokenize
-from string import punctuation
-import re
-
 
 class Preprocessor:
-    
+
     def __init__(self):
         self.stopwords = stopwords.words("english")
         self.to_drop = self.stopwords + list(punctuation) + list("0123456789“")
-        
+
     def preprocess(self, text: str) -> str:
         # Lowercase conversion
         new_text = text.lower()
@@ -121,7 +103,7 @@ class Preprocessor:
         tokens = word_tokenize(new_text)
         tokens = list(filter(lambda a: a not in self.to_drop and len(a) >= 3, tokens))
         return " ".join(tokens)
-        
+
 
 def test_pp():
     test_str = "One way would be to split the document into words by white space     " \
@@ -129,6 +111,7 @@ def test_pp():
                " punctuation with nothing (e.g. remove it)."
     p = Preprocessor()
     return p.preprocess(test_str)
+
 
 # test_pp()
 
@@ -150,42 +133,11 @@ def preprocess_df(df: pd.DataFrame, merge_summary=False) -> pd.DataFrame:
         new_df["reviewText"] += " " + new_df["summary"]
     return new_df
 
-# preprocess_df(mus_df[:5])["reviewText"].values
 
-
-# In[102]:
-
-# Now reviewText contains summary as well
-# We can work only with this column
-# mus_df = preprocess_df(mus_df, merge_summary=True)
-
-
-# In[112]:
-
-# mus_df.tail()
-
-
-# Теперь все то же самое проделываем с датасетом из домена автомобилей
-
-# In[111]:
-
-# auto_df = load_json(data_path["auto"])
-# lens = review_len(auto_df)
-# plt.hist(lens, range=(0, 750))
-# np.mean(lens)
-
-
-# In[114]:
-
-# auto_df = preprocess_df(auto_df, merge_summary=True)
-
-
-# ## Создание векторной модели
+# Создание векторной модели
 # Для word embedding используется word2vec
 
 # In[6]:
-
-from gensim.models import Word2Vec
 
 
 def train_w2v_model(dfs: list) -> Word2Vec:
@@ -197,30 +149,7 @@ def train_w2v_model(dfs: list) -> Word2Vec:
     return model
 
 
-# In[179]:
-
-# w2v = train_w2v_model([mus_df, auto_df])
-
-
-# In[180]:
-
-# mus_df.shape, auto_df.shape
-
-
-# In[181]:
-
-# w2v.wv.vectors.shape
-
-
-# In[182]:
-
-# w2v.save("./mus_auto.w2v")
-
-
 # Сохраним векторы, чтобы в будущем работать только с ними
-
-# In[7]:
-
 def create_vectors(df: pd.DataFrame, model: Word2Vec) -> pd.DataFrame:
     res = {
         "vectors": [],
@@ -240,30 +169,17 @@ def create_vectors(df: pd.DataFrame, model: Word2Vec) -> pd.DataFrame:
     return pd.DataFrame(res)
 
 
-# In[219]:
-
-# mus_vectors = create_vectors(mus_df, w2v)
-# mus_vectors.to_csv("../data/mus_vectors.csv", sep="\t", index=False)
-
-
-# In[220]:
-
-# auto_vectors = create_vectors(auto_df, w2v)
-# auto_vectors.to_csv("../data/auto_vectors.csv", sep="\t", index=False)
-
-
-# ### Датасеты Movies и Electronics
+# Датасеты Movies и Electronics
 # Для полной загрузки этих таблиц не хватает памяти, поэтому обработка построчная
 
 # Нужно два раза пройтись по текстам: первый раз, чтобы обучить модель w2v, а второй - чтобы создать векторы
 
 # In[8]:
 
-def create_vectors_from_file(pp_file: str, 
-                   vector_file: str, 
-                   w2v_file: str, 
-                   batch_size=1000,
-                   vector_size=128):
+def create_vectors_from_file(pp_file: str,
+                             vector_file: str,
+                             w2v_file: str,
+                             batch_size=1000):
     w2v = Word2Vec.load(w2v_file)
     vector_fp = open(vector_file, "w")
     header = True
@@ -276,16 +192,13 @@ def create_vectors_from_file(pp_file: str,
         header = False
 
 
-# In[9]:
-
 def process_file(raw_data_file: str,
-                 vector_file: str,
                  pp_backup_file: str,
                  w2v_model_file: str,
                  create_w2v=False,
                  columns=["reviewText", "summary", "overall"],
                  batch_size=1000,
-                 vector_size=128,):
+                 vector_size=128, ):
     data_gen = batch_generator(raw_data_file, columns, batch_size)
     if create_w2v:
         w2v = Word2Vec(size=vector_size, min_count=3)
@@ -310,57 +223,101 @@ def process_file(raw_data_file: str,
         w2v.build_vocab(pp_batch["reviewText"].values, update=True)
         w2v.train(pp_batch["reviewText"].values, total_examples=len(pp_batch["reviewText"]), epochs=20)
     w2v.save(w2v_model_file)
-    # Второй проход
-#     vector_file = open(vector_file, "w")
-#     header = True
-#     for num, batch in enumerate(pd.read_csv(pp_backup_file, sep="\t", chunksize=batch_size)):
-#         clear_output(True)
-#         display("Creating vectors")
-#         display("Processing batch {}".format(num + 1))
-#         vector_batch = create_vectors(batch, w2v)
-#         vector_batch.to_csv(vector_file, header=header, sep="\t", index=False)
-        
-
-columns = ["reviewText", "summary", "overall"]
-batch_size = 1000
-vector_size = 128
-w2v_file = "./w2v_movies_electr.model"
-
-electr_pp_file = os.path.join("..", "data", "electr_pp.csv")
-movies_pp_file = os.path.join("..", "data", "movies_pp.csv")
-
-electr_vec_file = os.path.join("..", "data", "electr_vectors.csv")
-movies_vec_file = os.path.join("..", "data", "electr_vectors.csv")
 
 
-# Предобработка и обучение w2v
+def balance_batch(df: pd.DataFrame):
+    max_target = 0
+    if df[df["target_bin"] == 1].shape[0] > df[df["target_bin"] == 0].shape[0]:
+        max_target = 1
+    ind_to_drop = np.random.choice(df[df["target_bin"] == max_target].index,
+                                   size=(df.shape[0] - 2 * df[df["target_bin"] == 1 - max_target].shape[0]),
+                                   replace=False)
+    df.drop(ind_to_drop, axis=0, inplace=True)
 
-# In[13]:
 
-process_file(raw_data_file=data_path["electr"],
-             vector_file=electr_vec_file,
-             pp_backup_file=electr_pp_file,
-             w2v_model_file=w2v_file,
-             create_w2v=True,
-             columns=columns,
-             batch_size=batch_size,
-             vector_size=vector_size)
+def process_vector_batch(batch: pd.DataFrame):
+    # To binary
+    batch["target_bin"] = (batch["overall"] > 3).astype(int)
+    #     batch["vectors"] = list(map(eval, batch["vectors"]))
+    # Balancing
+    balance_batch(batch)
 
-process_file(raw_data_file=data_path["movies"],
-             vector_file=movies_vec_file,
-             pp_backup_file=movies_pp_file,
-             w2v_model_file=w2v_file,
-             create_w2v=False,
-             columns=columns,
-             batch_size=batch_size,
-             vector_size=vector_size,)
 
-create_vectors_from_file(pp_file=electr_pp_file,
-                         vector_file=electr_vec_file,
-                         w2v_file=w2v_file,
-                         batch_size=5000)
+def batch_vector_generator(pp_file: str,
+                           w2v_file: str,
+                           batch_size=1000):
+    w2v = Word2Vec.load(w2v_file)
+    for num, batch in enumerate(pd.read_csv(pp_file, sep="\t", chunksize=batch_size)):
+        vector_batch = create_vectors(batch, w2v)
+        yield vector_batch
 
-create_vectors_from_file(pp_file=movies_pp_file,
-                         vector_file=movies_vec_file,
-                         w2v_file=w2v_file,
-                         batch_size=5000)
+
+def balanced_to_file(inp_file: str, output_file: str, batch_size: int):
+    first = True
+    with open(output_file, "w") as out_file:
+        for num, batch in enumerate(batch_vector_generator(pp_file=inp_file,
+                                                           batch_size=batch_size,
+                                                           w2v_file=w2v_file)):
+            process_vector_batch(batch)
+            len_0 = batch[batch["target_bin"] == 0].shape[0]
+            len_1 = batch[batch["target_bin"] == 1].shape[0]
+            if len_0 != len_1:
+                print("Unbalanced!\n0: {}\n1: {}".format(len_0, len_1))
+            batch.to_csv(out_file, header=first, index=False, sep="\t")
+            first = False
+
+
+if __name__ == '__main__':
+    try:
+        balanced_output = {
+            "movies": "../data/movies_vectors_balanced.csv",    # Source domain
+            "electr": "../data/electr_vectors_balanced.csv",    # Target domain
+        }
+        columns = ["reviewText", "summary", "overall"]
+        batch_size = 1000
+        vector_size = 128
+        w2v_file = "./w2v_movies_electr.model"
+
+        electr_pp_file = os.path.join("..", "data", "electr_pp.csv")
+        movies_pp_file = os.path.join("..", "data", "movies_pp.csv")
+
+        electr_vec_file = os.path.join("..", "data", "electr_vectors.csv")
+        movies_vec_file = os.path.join("..", "data", "electr_vectors.csv")
+
+        # Загрузка данных
+
+        load_data()
+
+        # Предобработка и обучение w2v
+
+        process_file(raw_data_file=data_path["electr"],
+                     pp_backup_file=electr_pp_file,
+                     w2v_model_file=w2v_file,
+                     create_w2v=True,
+                     columns=columns,
+                     batch_size=batch_size,
+                     vector_size=vector_size)
+
+        process_file(raw_data_file=data_path["movies"],
+                     pp_backup_file=movies_pp_file,
+                     w2v_model_file=w2v_file,
+                     create_w2v=False,
+                     columns=columns,
+                     batch_size=batch_size,
+                     vector_size=vector_size, )
+
+        # create_vectors_from_file(pp_file=electr_pp_file,
+        #                          vector_file=electr_vec_file,
+        #                          w2v_file=w2v_file,
+        #                          batch_size=5000)
+        #
+        # create_vectors_from_file(pp_file=movies_pp_file,
+        #                          vector_file=movies_vec_file,
+        #                          w2v_file=w2v_file,
+        #                          batch_size=5000)
+
+        balanced_to_file(inp_file=electr_pp_file, output_file=balanced_output["electr"], batch_size=5000)
+        balanced_to_file(inp_file=movies_pp_file, output_file=balanced_output["movies"], batch_size=5000)
+    except Exception as e:
+        with open("err_preparation.txt") as logfile:
+            logfile.write(e)
