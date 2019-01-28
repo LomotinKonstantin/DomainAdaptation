@@ -258,6 +258,7 @@ def balanced_to_file(inp_file: str, output_file: str, batch_size: int, w2v_file:
 
 if __name__ == '__main__':
     try:
+        print("Started")
         data_path = {
             "music": os.path.join("..", "data", "Musical_Instruments_5.json"),
             "auto": os.path.join("..", "data", "Automotive_5.json"),
@@ -269,7 +270,7 @@ if __name__ == '__main__':
             "electr": "../data/electr_vectors_balanced.csv",    # Target domain
         }
         columns = ["reviewText", "summary", "overall"]
-        batch_size = 1000
+        batch_size = 5000
         vector_size = 128
         w2v_file = "./w2v_movies_electr.model"
 
@@ -280,11 +281,10 @@ if __name__ == '__main__':
         movies_vec_file = os.path.join("..", "data", "electr_vectors.csv")
 
         # Загрузка данных
-
-        load_data()
+        # load_data()
 
         # Предобработка и обучение w2v
-
+        print("Preprocessing electronics")
         process_file(raw_data_file=data_path["electr"],
                      pp_backup_file=electr_pp_file,
                      w2v_model_file=w2v_file,
@@ -292,7 +292,7 @@ if __name__ == '__main__':
                      columns=columns,
                      batch_size=batch_size,
                      vector_size=vector_size)
-
+        print("Preprocessing movies")
         process_file(raw_data_file=data_path["movies"],
                      pp_backup_file=movies_pp_file,
                      w2v_model_file=w2v_file,
@@ -310,10 +310,11 @@ if __name__ == '__main__':
         #                          vector_file=movies_vec_file,
         #                          w2v_file=w2v_file,
         #                          batch_size=5000)
-
+        print("Creating and balancing electronics vectors")
         balanced_to_file(inp_file=electr_pp_file,
                          output_file=balanced_output["electr"],
                          batch_size=5000, w2v_file=w2v_file)
+        print("Creating and balancing movies vectors")
         balanced_to_file(inp_file=movies_pp_file,
                          output_file=balanced_output["movies"],
                          batch_size=5000, w2v_file=w2v_file)
