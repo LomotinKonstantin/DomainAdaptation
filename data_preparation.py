@@ -29,17 +29,6 @@ def load_data():
 # 
 # Чтобы все работало без редактирования, данные должны лежать в распакованном виде в ../data/
 
-# In[2]:
-
-data_path = {
-    "music": os.path.join("..", "data", "Musical_Instruments_5.json"),
-    "auto": os.path.join("..", "data", "Automotive_5.json"),
-    "movies": os.path.join("..", "data", "Movies_and_TV_5.json"),
-    "electr": os.path.join("..", "data", "Electronics_5.json"),
-}
-
-
-# In[3]:
 
 def load_json(path: str, columns=["helpful", "reviewText", "summary", "overall"]) -> pd.DataFrame:
     """
@@ -252,7 +241,7 @@ def batch_vector_generator(pp_file: str,
         yield vector_batch
 
 
-def balanced_to_file(inp_file: str, output_file: str, batch_size: int):
+def balanced_to_file(inp_file: str, output_file: str, batch_size: int, w2v_file: str):
     first = True
     with open(output_file, "w") as out_file:
         for num, batch in enumerate(batch_vector_generator(pp_file=inp_file,
@@ -269,6 +258,12 @@ def balanced_to_file(inp_file: str, output_file: str, batch_size: int):
 
 if __name__ == '__main__':
     try:
+        data_path = {
+            "music": os.path.join("..", "data", "Musical_Instruments_5.json"),
+            "auto": os.path.join("..", "data", "Automotive_5.json"),
+            "movies": os.path.join("..", "data", "Movies_and_TV_5.json.gz"),
+            "electr": os.path.join("..", "data", "Electronics_5.json.gz"),
+        }
         balanced_output = {
             "movies": "../data/movies_vectors_balanced.csv",    # Source domain
             "electr": "../data/electr_vectors_balanced.csv",    # Target domain
@@ -316,8 +311,12 @@ if __name__ == '__main__':
         #                          w2v_file=w2v_file,
         #                          batch_size=5000)
 
-        balanced_to_file(inp_file=electr_pp_file, output_file=balanced_output["electr"], batch_size=5000)
-        balanced_to_file(inp_file=movies_pp_file, output_file=balanced_output["movies"], batch_size=5000)
+        balanced_to_file(inp_file=electr_pp_file,
+                         output_file=balanced_output["electr"],
+                         batch_size=5000, w2v_file=w2v_file)
+        balanced_to_file(inp_file=movies_pp_file,
+                         output_file=balanced_output["movies"],
+                         batch_size=5000, w2v_file=w2v_file)
     except Exception as e:
-        with open("err_preparation.txt") as logfile:
-            logfile.write(e)
+        with open("err_preparation.txt", "w") as logfile:
+            logfile.write(str(e))
