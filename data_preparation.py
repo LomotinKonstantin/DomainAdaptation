@@ -257,7 +257,9 @@ def balanced_to_file(inp_file: str, output_file: str, batch_size: int, w2v_file:
 
 
 if __name__ == '__main__':
+    log = open("preparation.log", "w")
     try:
+
         print("Started")
         data_path = {
             "music": os.path.join("..", "data", "Musical_Instruments_5.json"),
@@ -272,7 +274,7 @@ if __name__ == '__main__':
         columns = ["reviewText", "summary", "overall"]
         batch_size = 5000
         vector_size = 128
-        w2v_file = "./w2v_movies_electr.model"
+        w2v_file = "../data/w2v_movies_electr.model"
 
         electr_pp_file = os.path.join("..", "data", "electr_pp.csv")
         movies_pp_file = os.path.join("..", "data", "movies_pp.csv")
@@ -284,22 +286,22 @@ if __name__ == '__main__':
         # load_data()
 
         # Предобработка и обучение w2v
-        print("Preprocessing electronics")
-        process_file(raw_data_file=data_path["electr"],
-                     pp_backup_file=electr_pp_file,
-                     w2v_model_file=w2v_file,
-                     create_w2v=True,
-                     columns=columns,
-                     batch_size=batch_size,
-                     vector_size=vector_size)
-        print("Preprocessing movies")
-        process_file(raw_data_file=data_path["movies"],
-                     pp_backup_file=movies_pp_file,
-                     w2v_model_file=w2v_file,
-                     create_w2v=False,
-                     columns=columns,
-                     batch_size=batch_size,
-                     vector_size=vector_size, )
+        # print("Preprocessing electronics")
+        # process_file(raw_data_file=data_path["electr"],
+        #              pp_backup_file=electr_pp_file,
+        #              w2v_model_file=w2v_file,
+        #              create_w2v=True,
+        #              columns=columns,
+        #              batch_size=batch_size,
+        #              vector_size=vector_size)
+        # print("Preprocessing movies")
+        # process_file(raw_data_file=data_path["movies"],
+        #              pp_backup_file=movies_pp_file,
+        #              w2v_model_file=w2v_file,
+        #              create_w2v=False,
+        #              columns=columns,
+        #              batch_size=batch_size,
+        #              vector_size=vector_size, )
 
         # create_vectors_from_file(pp_file=electr_pp_file,
         #                          vector_file=electr_vec_file,
@@ -310,14 +312,16 @@ if __name__ == '__main__':
         #                          vector_file=movies_vec_file,
         #                          w2v_file=w2v_file,
         #                          batch_size=5000)
-        print("Creating and balancing electronics vectors")
+        print("Creating and balancing electronics vectors", file=log)
         balanced_to_file(inp_file=electr_pp_file,
                          output_file=balanced_output["electr"],
                          batch_size=5000, w2v_file=w2v_file)
-        print("Creating and balancing movies vectors")
+        print("Creating and balancing movies vectors", file=log)
         balanced_to_file(inp_file=movies_pp_file,
                          output_file=balanced_output["movies"],
                          batch_size=5000, w2v_file=w2v_file)
     except Exception as e:
         with open("err_preparation.txt", "w") as logfile:
             logfile.write(str(e))
+    finally:
+        log.close()
