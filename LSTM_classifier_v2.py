@@ -92,7 +92,7 @@ if __name__ == '__main__':
                       optimizer='adagrad', metrics=["accuracy"])
         train_model(model)
     except Exception as e:
-        with open("err_training.txt") as logfile:
+        with open("err_training.txt", "w") as logfile:
             logfile.write(e)
 
 
