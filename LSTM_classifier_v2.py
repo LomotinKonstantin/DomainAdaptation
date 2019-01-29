@@ -6,6 +6,7 @@ from keras.layers import LSTM, Dense
 from keras.backend import clear_session
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import balanced_accuracy_score, accuracy_score
+from keras.callbacks import CSVLogger
 
 
 def count_lines(zipped_folder: str, fname: str):
@@ -68,9 +69,11 @@ def train_model(model):
     for X_train, X_test, y_train, y_test in train_test_generator(movies_vectors_file,
                                                                  batch_size=5000,
                                                                  test_percent=0.2):
-        model.fit(X_train, y_train, 
+        csv_logger = CSVLogger('training_log.csv', append=True, separator='\t')
+        model.fit(X_train, y_train,
                   validation_data=(X_test, y_test), 
-                  steps_per_epoch=5, epochs=3, verbose=1, validation_steps=3)
+                  steps_per_epoch=5, epochs=3, verbose=1,
+                  validation_steps=3, callbacks=[csv_logger])
 
 
 if __name__ == '__main__':
