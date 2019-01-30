@@ -200,7 +200,7 @@ def process_file(raw_data_file: str,
         # Предобработка
         # clear_output(True)
         # display("Preprocessing and w2v training")
-        # display("Processing batch {}".format(num + 1))
+        print("Processing batch {}".format(num + 1))
         pp_batch = preprocess_df(batch, merge_summary=True)
         pp_batch.to_csv(pp_file, header=header, sep="\t", index=False)
         if header and create_w2v:
@@ -248,6 +248,7 @@ def balanced_to_file(inp_file: str, output_file: str, batch_size: int, w2v_file:
         for num, batch in enumerate(batch_vector_generator(pp_file=inp_file,
                                                            batch_size=batch_size,
                                                            w2v_file=w2v_file)):
+            print("Batch", num + 1)
             process_vector_batch(batch)
             len_0 = batch[batch["target_bin"] == 0].shape[0]
             len_1 = batch[batch["target_bin"] == 1].shape[0]
@@ -322,7 +323,6 @@ if __name__ == '__main__':
                          output_file=balanced_output["movies"],
                          batch_size=5000, w2v_file=w2v_file)
     except Exception as e:
-        with open("err_preparation.txt", "w") as logfile:
-            logfile.write(str(e))
+        raise e
     finally:
         log.close()
