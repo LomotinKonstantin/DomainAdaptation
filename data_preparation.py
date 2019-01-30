@@ -238,6 +238,7 @@ def batch_vector_generator(pp_file: str,
     w2v = Word2Vec.load(w2v_file)
     for num, batch in enumerate(pd.read_csv(pp_file, sep="\t", chunksize=batch_size)):
         vector_batch = create_vectors(batch, w2v)
+        vector_batch["overall"] = vector_batch["overall"].apply(int)
         yield vector_batch
 
 
@@ -274,7 +275,7 @@ if __name__ == '__main__':
         columns = ["reviewText", "summary", "overall"]
         batch_size = 5000
         vector_size = 128
-        w2v_file = "../data/w2v_movies_electr.model"
+        w2v_file = "../models/w2v_movies_electr.model"
 
         electr_pp_file = os.path.join("..", "data", "electr_pp.csv")
         movies_pp_file = os.path.join("..", "data", "movies_pp.csv")

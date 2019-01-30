@@ -91,6 +91,7 @@ if __name__ == '__main__':
         model.compile(loss='binary_crossentropy',
                       optimizer='adagrad', metrics=["accuracy"])
         train_model(model)
+        model.save("../models/LSTM_v2.hdf5")
     except Exception as e:
         with open("err_training.txt", "w") as logfile:
             logfile.write(e)
