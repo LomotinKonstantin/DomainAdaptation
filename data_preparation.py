@@ -148,7 +148,10 @@ def create_vectors(df: pd.DataFrame, model: Word2Vec) -> pd.DataFrame:
         tokens = df.loc[i, "reviewText"].split()
         vec_lst = []
         for word in tokens:
+            try:
                 vec_lst.append(list(model.wv.get_vector(word)))
+            except KeyError:
+                pass
         res["vectors"].append(vec_lst)
         res["overall"].append(df.loc[i, "overall"])
     # Also adding the target variable
