@@ -334,10 +334,10 @@ if __name__ == '__main__':
         #                          vector_file=movies_vec_file,
         #                          w2v_file=w2v_file,
         #                          batch_size=5000)
-        create_w2v_model(files=[electr_pp_file, movies_pp_file],
-                         w2v_file=w2v_file,
-                         batch_size=10000,
-                         vector_size=128)
+        # create_w2v_model(files=[electr_pp_file, movies_pp_file],
+        #                  w2v_file=w2v_file,
+        #                  batch_size=10000,
+        #                  vector_size=128)
         print("Creating and balancing electronics vectors", file=log)
         balanced_to_file(inp_file=electr_pp_file,
                          output_file=balanced_output["electr"],
