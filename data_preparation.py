@@ -257,6 +257,24 @@ def balanced_to_file(inp_file: str, output_file: str, batch_size: int, w2v_file:
             first = False
 
 
+def sentence_generator(files: list, batch_size: int) -> pd.DataFrame:
+    for fn in files:
+        for num, batch in enumerate(pd.read_csv(fn, sep="\t", chunksize=batch_size)):
+            print("Sentence generator batch {}".format(num + 1))
+            sentence = [text.split() for text in batch["reviewText"].values]
+            yield sentence
+
+
+def create_w2v_model(files: list, w2v_file: str, batch_size=1000, vector_size=128):
+    w2v = Word2Vec(size=vector_size, min_count=3)
+    init = False
+    for sentences in sentence_generator(files, batch_size):
+        w2v.build_vocab(sentences, update=init)
+        w2v.train(sentences, epochs=20, total_examples=len(sentences))
+        init = True
+    w2v.save(w2v_file)
+
+
 if __name__ == '__main__':
     log = open("preparation.log", "w")
     try:
@@ -313,6 +331,10 @@ if __name__ == '__main__':
         #                          vector_file=movies_vec_file,
         #                          w2v_file=w2v_file,
         #                          batch_size=5000)
+        create_w2v_model(files=[electr_pp_file, movies_pp_file],
+                         w2v_file=w2v_file,
+                         batch_size=10000,
+                         vector_size=128)
         print("Creating and balancing electronics vectors", file=log)
         balanced_to_file(inp_file=electr_pp_file,
                          output_file=balanced_output["electr"],
