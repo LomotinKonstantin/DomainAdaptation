@@ -238,7 +238,9 @@ def batch_vector_generator(pp_file: str,
     w2v = Word2Vec.load(w2v_file)
     for num, batch in enumerate(pd.read_csv(pp_file, sep="\t", chunksize=batch_size)):
         vector_batch = create_vectors(batch, w2v)
-        vector_batch["overall"] = vector_batch["overall"].apply(int)
+        vector_batch.drop(index=vector_batch[vector_batch["overall"] == "overall"].index,
+                          inplace=True)
+        vector_batch["overall"] = vector_batch["overall"].apply(float)
         yield vector_batch
 
 
@@ -317,11 +319,11 @@ if __name__ == '__main__':
         print("Creating and balancing electronics vectors", file=log)
         balanced_to_file(inp_file=electr_pp_file,
                          output_file=balanced_output["electr"],
-                         batch_size=5000, w2v_file=w2v_file)
+                         batch_size=15000, w2v_file=w2v_file)
         print("Creating and balancing movies vectors", file=log)
         balanced_to_file(inp_file=movies_pp_file,
                          output_file=balanced_output["movies"],
-                         batch_size=5000, w2v_file=w2v_file)
+                         batch_size=15000, w2v_file=w2v_file)
     except Exception as e:
         raise e
     finally:
