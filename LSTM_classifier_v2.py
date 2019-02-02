@@ -71,8 +71,8 @@ def train_model(model):
         csv_logger = CSVLogger('training_log.csv', append=True, separator='\t')
         model.fit(X_train, y_train,
                   validation_data=(X_test, y_test), 
-                  steps_per_epoch=5, epochs=3, verbose=1,
-                  validation_steps=3, callbacks=[csv_logger])
+                  steps_per_epoch=50, epochs=30, verbose=1,
+                  validation_steps=30, callbacks=[csv_logger])
 
 
 if __name__ == '__main__':
@@ -81,7 +81,7 @@ if __name__ == '__main__':
         movies_vectors_file = "../data/movies_vectors_balanced.csv"
         clear_session()
         hidden_size1 = 32
-        hidden_size2 = 150
+        hidden_size2 = 256
         model = Sequential()
         model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128)))
         # model.add(LSTM(hidden_size2, return_sequences=True))
