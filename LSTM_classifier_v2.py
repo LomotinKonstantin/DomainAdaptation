@@ -78,8 +78,8 @@ def train_model(model):
 
 if __name__ == '__main__':
     try:
-        electr_vectors_file = "electr_vectors_balanced.csv"
-        movies_vectors_file = "movies_vectors_balanced.csv"
+        electr_vectors_file = "../electr_vectors_balanced.csv"
+        movies_vectors_file = "../movies_vectors_balanced.csv"
         clear_session()
         hidden_size1 = 32
         hidden_size2 = 150
@@ -95,6 +95,7 @@ if __name__ == '__main__':
     except Exception as e:
         with open("err_training.txt", "w") as logfile:
             logfile.write(e)
+        raise e
 
 
 
