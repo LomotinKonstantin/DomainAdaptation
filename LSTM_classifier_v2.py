@@ -52,8 +52,7 @@ def train_test_generator(fname: str,
     generator = batch_generator(fname=fname,
                                 batch_size=batch_size)
     for num, batch in enumerate(generator):
-        clear_output(True)
-        print("Batch", num + 1)
+        print("Train/test batch", num + 1)
         process_batch(batch)
         X_train, X_test, y_train, y_test = train_test_split(batch["vectors"].values, 
                                                             batch["target_bin"].values, 
