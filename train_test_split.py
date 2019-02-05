@@ -6,6 +6,10 @@ from sklearn.model_selection import train_test_split
 if __name__ == '__main__':
     test_ratio = float(sys.argv[1])
     files = sys.argv[2:]
+    print("Started")
+    print("Test ratio:", test_ratio)
+    print("Files:")
+    print("\t", "\n\t".join(files))
     for fname in files:
         if not os.path.exists(fname):
             print("File {} not found".format(fname))
