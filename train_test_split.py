@@ -17,7 +17,7 @@ if __name__ == '__main__':
                                  "test_" + fname_split)
         with open(train_path, "w") as train_file, open(test_path, "w") as test_file:
             write_header = True
-            for num, chunk in enumerate(pd.read_csv(fname)):
+            for num, chunk in enumerate(pd.read_csv(fname), sep="\t"):
                 chunk_size = len(chunk.index)
                 train_rows_num = int(chunk_size * (1 - test_ratio))
                 train_chunk = chunk.iloc[:train_rows_num]
