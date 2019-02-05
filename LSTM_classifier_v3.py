@@ -113,11 +113,13 @@ def test_model(model, test_path: str, report_path: str):
 
 
 if __name__ == '__main__':
+    print("Started")
     train_path = {"electr": "../data/train_electr_vectors_balanced.csv",
                   "movies": "../data/train_movies_vectors_balanced.csv"}
     test_path = {"electr": "../data/test_electr_vectors_balanced.csv",
                  "movies": "../data/test_movies_vectors_balanced.csv"}
     report_path = "../reports/report_LSTM_v3.csv"
+    print("Creating model")
     clear_session()
     hidden_size1 = 32
     hidden_size2 = 256
@@ -128,7 +130,9 @@ if __name__ == '__main__':
     model.add(Dense(1, activation='hard_sigmoid'))
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
+    print("Starting model training")
     train_model(model, train_path["movies"])
+    print("Testing model")
     test_model(model, test_path["movies"], report_path)
     model.save("../models/LSTM_v3.hdf5")
 
