@@ -93,7 +93,7 @@ def train_model(model, train_path: str):
         cntr += 1
         model.fit(X_train, y_train,
                   # steps_per_epoch=50,
-                  epochs=5,
+                  epochs=3,
                   verbose=1,
                   callbacks=[csv_logger])
 
