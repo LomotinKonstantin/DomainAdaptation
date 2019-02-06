@@ -154,7 +154,8 @@ if __name__ == '__main__':
                   optimizer='adagrad')
     print("Starting model training")
     batch_size = 3000
-    train_model(model, train_path["movies"], batch_size)
+    steps_per_epoch = int(batch_size / count_lines(train_path["movies"]))
+    train_model(model, train_path["movies"], batch_size, steps_per_epoch)
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
     model.save("../models/LSTM_v3.hdf5")
