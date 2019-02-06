@@ -82,7 +82,7 @@ def train_test_model(model):
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
-    generator = batch_generator(fname=path, from_line=9000, to_line=9500,
+    generator = batch_generator(fname=path, #from_line=9000, to_line=9500,
                                 batch_size=batch_size)
     for num, batch in enumerate(generator):
         process_batch(batch)
