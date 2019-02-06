@@ -93,12 +93,12 @@ def train_model(model, train_path: str):
     csv_logger = CSVLogger('../reports/training_log.csv',
                            append=True, separator='\t')
     cntr = 1
-    for X_train, y_train in data_generator(train_path, 5000):
+    for X_train, y_train in data_generator(train_path, 20000):
         print("Training batch ", cntr)
         cntr += 1
         model.fit(X_train, y_train,
                   # steps_per_epoch=50,
-                  epochs=30,
+                  epochs=5,
                   verbose=1,
                   callbacks=[csv_logger])
 
@@ -107,7 +107,7 @@ def test_model(model, test_path: str, report_path: str):
     y_true = []
     y_pred = []
     cntr = 1
-    for X_test, y_test in data_generator(test_path, 5000):
+    for X_test, y_test in data_generator(test_path, 20000):
         print("Testing batch ", cntr)
         cntr += 1
         predict = model.predict(X_test)
