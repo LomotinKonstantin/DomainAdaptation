@@ -74,7 +74,7 @@ def train_test_model(model):
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
-    generator = batch_generator(fname=path,
+    generator = batch_generator(fname=path, from_line=9000, to_line=9500,
                                 batch_size=batch_size)
     for num, batch in enumerate(generator):
         process_batch(batch)
@@ -91,13 +91,18 @@ def train_model(model, train_path: str, batch_size: int):
                            append=True, separator='\t')
     cntr = 1
     for X_train, y_train in data_generator(train_path, batch_size):
-        print("Training batch ", cntr, "of shape", X_train.shape)
-        cntr += 1
-        model.fit(X_train, y_train,
-                  # steps_per_epoch=50,
-                  epochs=3,
-                  verbose=1,
-                  callbacks=[csv_logger])
+        try:
+            print("Training batch ", cntr, "of shape", X_train.shape)
+            cntr += 1
+            model.fit(X_train, y_train,
+                      # steps_per_epoch=50,
+                      epochs=3,
+                      verbose=1,
+                      callbacks=[csv_logger])
+        except ValueError as ve:
+            print("X:\n", X_train)
+            print("y:\n", y_train)
+            raise ve
 
 
 def test_model(model, test_path: str, report_path: str, batch_size: int):
