@@ -11,6 +11,8 @@ from keras.callbacks import CSVLogger
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
     array = np.array([np.array(sublist) for sublist in vector])
+    if len(array) == 0:
+        return np.zeros([1, 1, 128])
     try:
         return np.pad(array, ((0, padding_size-len(array)), (0, 0)),
                       mode='constant', constant_values=0.0)
