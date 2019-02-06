@@ -1,4 +1,3 @@
-import tensorflow as tf
 import pandas as pd
 import numpy as np
 from keras.models import Sequential
@@ -9,20 +8,29 @@ from sklearn.metrics import classification_report
 from keras.callbacks import CSVLogger
 
 
+def count_lines(filename: str) -> int:
+    count = 0
+    for _ in open(filename):
+        count += 1
+    return count
+
+
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
     array = np.array([np.array(sublist) for sublist in vector])
     if len(array) == 0:
-        return np.zeros([1, 1, 128])
+        return np.zeros([1, 128])
     try:
-        return np.pad(array, ((0, padding_size-len(array)), (0, 0)),
+        return np.pad(array, ((0, padding_size - len(array)), (0, 0)),
                       mode='constant', constant_values=0.0)
     except Exception as e:
-        return np.zeros([1, 1, 128])
+        return np.zeros([1, 128])
 
 
 def process_batch(batch: pd.DataFrame):
     max_len = max(map(len, batch["vectors"]))
     batch["vectors"] = batch["vectors"].apply(process_vector, args=[max_len])
+
+
 #     batch["target_bin"] = batch["target_bin"].values.reshape([-1, 1, 1])
 
 
@@ -86,23 +94,28 @@ def data_generator(path: str, batch_size: int) -> tuple:
         yield X, y
 
 
-def train_model(model, train_path: str, batch_size: int):
+def train_model(model, train_path: str, batch_size: int, steps_per_epoch: int):
     csv_logger = CSVLogger('../reports/training_log.csv',
                            append=True, separator='\t')
-    cntr = 1
-    for X_train, y_train in data_generator(train_path, batch_size):
-        try:
-            print("Training batch ", cntr, "of shape", X_train.shape)
-            cntr += 1
-            model.fit(X_train, y_train,
-                      # steps_per_epoch=50,
-                      epochs=3,
-                      verbose=1,
-                      callbacks=[csv_logger])
-        except ValueError as ve:
-            print("X:\n", X_train)
-            print("y:\n", y_train)
-            raise ve
+    generator = data_generator(train_path, batch_size)
+    model.fit_generator(generator,
+                        steps_per_epoch=steps_per_epoch,
+                        epochs=3,
+                        verbose=1,
+                        callbacks=[csv_logger])
+    # for X_train, y_train in :
+    #     try:
+    #         print("Training batch ", cntr, "of shape", X_train.shape)
+    #         cntr += 1
+    #         model.fit(X_train, y_train,
+    #                   # steps_per_epoch=50,
+    #                   epochs=3,
+    #                   verbose=1,
+    #                   callbacks=[csv_logger])
+    #     except ValueError as ve:
+    #         print("X:\n", X_train)
+    #         print("y:\n", y_train)
+    #         raise ve
 
 
 def test_model(model, test_path: str, report_path: str, batch_size: int):
@@ -145,6 +158,3 @@ if __name__ == '__main__':
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
     model.save("../models/LSTM_v3.hdf5")
-
-
-
