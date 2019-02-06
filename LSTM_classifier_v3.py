@@ -84,12 +84,12 @@ def data_generator(path: str, batch_size: int) -> tuple:
         yield X, y
 
 
-def train_model(model, train_path: str):
+def train_model(model, train_path: str, batch_size: int):
     csv_logger = CSVLogger('../reports/training_log.csv',
                            append=True, separator='\t')
     cntr = 1
-    for X_train, y_train in data_generator(train_path, 5000):
-        print("Training batch ", cntr)
+    for X_train, y_train in data_generator(train_path, batch_size):
+        print("Training batch ", cntr, "of shape", X_train.shape)
         cntr += 1
         model.fit(X_train, y_train,
                   # steps_per_epoch=50,
@@ -98,11 +98,11 @@ def train_model(model, train_path: str):
                   callbacks=[csv_logger])
 
 
-def test_model(model, test_path: str, report_path: str):
+def test_model(model, test_path: str, report_path: str, batch_size: int):
     y_true = []
     y_pred = []
     cntr = 1
-    for X_test, y_test in data_generator(test_path, 5000):
+    for X_test, y_test in data_generator(test_path, batch_size):
         print("Testing batch ", cntr)
         cntr += 1
         predict = np.round(model.predict(X_test).mean(axis=1).reshape(-1))
@@ -133,9 +133,10 @@ if __name__ == '__main__':
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
     print("Starting model training")
-    train_model(model, train_path["movies"])
+    batch_size = 3000
+    train_model(model, train_path["movies"], batch_size)
     print("Testing model")
-    test_model(model, test_path["movies"], report_path)
+    test_model(model, test_path["movies"], report_path, batch_size)
     model.save("../models/LSTM_v3.hdf5")
 
 
