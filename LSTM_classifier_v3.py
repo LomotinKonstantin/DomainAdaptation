@@ -106,6 +106,7 @@ def test_model(model, test_path: str, report_path: str):
         print("Testing batch ", cntr)
         cntr += 1
         predict = np.round(model.predict(X_test).mean(axis=1).reshape(-1))
+        predict = list(map(int, predict))
         y_true.extend(y_test.reshape(y_test.shape[0]))
         y_pred.extend(predict)
     report = classification_report(y_true, y_pred)
