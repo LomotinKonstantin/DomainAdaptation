@@ -9,11 +9,6 @@ from sklearn.metrics import classification_report
 from keras.callbacks import CSVLogger
 
 
-def count_lines(zipped_folder: str, fname: str):
-    zf = ZipFile(zipped_folder)
-    return sum([1 for _ in zf.open(fname)])
-
-
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
     array = np.array([np.array(sublist) for sublist in vector])
     try:
@@ -93,7 +88,7 @@ def train_model(model, train_path: str):
     csv_logger = CSVLogger('../reports/training_log.csv',
                            append=True, separator='\t')
     cntr = 1
-    for X_train, y_train in data_generator(train_path, 20000):
+    for X_train, y_train in data_generator(train_path, 5000):
         print("Training batch ", cntr)
         cntr += 1
         model.fit(X_train, y_train,
@@ -107,12 +102,12 @@ def test_model(model, test_path: str, report_path: str):
     y_true = []
     y_pred = []
     cntr = 1
-    for X_test, y_test in data_generator(test_path, 20000):
+    for X_test, y_test in data_generator(test_path, 5000):
         print("Testing batch ", cntr)
         cntr += 1
-        predict = model.predict(X_test)
+        predict = np.round(model.predict(X_test).mean(axis=1).reshape(-1))
         y_true.extend(y_test.reshape(y_test.shape[0]))
-        y_pred.extend(predict.reshape(predict.shape[0]))
+        y_pred.extend(predict)
     report = classification_report(y_true, y_pred)
     with open(report_path, "w") as report_file:
         report_file.write(report)
