@@ -16,9 +16,9 @@ def count_lines(filename: str) -> int:
 
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
-    array = np.array([np.array(sublist) for sublist in vector])
-    if len(array) == 0:
+    if len(vector) == 0:
         return np.zeros([1, 128])
+    array = np.array([np.array(sublist) for sublist in vector])
     try:
         return np.pad(array, ((0, padding_size - len(array)), (0, 0)),
                       mode='constant', constant_values=0.0)
@@ -69,20 +69,20 @@ def train_test_generator(fname: str,
         yield (X_train, X_test, y_train, y_test)
 
 
-def train_test_model(model):
-    for X_train, X_test, y_train, y_test in train_test_generator(movies_vectors_file,
-                                                                 batch_size=5000,
-                                                                 test_percent=0.2):
-        csv_logger = CSVLogger('../reports/training_log.csv',
-                               append=True, separator='\t')
-        model.fit(X_train, y_train,
-                  validation_data=(X_test, y_test),
-                  steps_per_epoch=50, epochs=30, verbose=1,
-                  validation_steps=30, callbacks=[csv_logger])
+# def train_test_model(model):
+#     for X_train, X_test, y_train, y_test in train_test_generator(movies_vectors_file,
+#                                                                  batch_size=5000,
+#                                                                  test_percent=0.2):
+#         csv_logger = CSVLogger('../reports/training_log.csv',
+#                                append=True, separator='\t')
+#         model.fit(X_train, y_train,
+#                   validation_data=(X_test, y_test),
+#                   steps_per_epoch=50, epochs=30, verbose=1,
+#                   validation_steps=30, callbacks=[csv_logger])
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
-    generator = batch_generator(fname=path, #from_line=9000, to_line=9500,
+    generator = batch_generator(fname=path, from_line=9200, to_line=9500,
                                 batch_size=batch_size)
     for num, batch in enumerate(generator):
         process_batch(batch)
@@ -138,6 +138,8 @@ if __name__ == '__main__':
     print("Started")
     train_path = {"electr": "../data/train_electr_vectors_balanced.csv",
                   "movies": "../data/train_movies_vectors_balanced.csv"}
+    # debug_train_path = {"electr": "../data/train_electr_vectors_balanced.csv",
+    #                     "movies": "../data/movies_vectors_balanced.csv"}
     test_path = {"electr": "../data/test_electr_vectors_balanced.csv",
                  "movies": "../data/test_movies_vectors_balanced.csv"}
     report_path = "../reports/report_LSTM_v3.csv"
@@ -153,9 +155,8 @@ if __name__ == '__main__':
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
     print("Starting model training")
-    batch_size = 3000
+    batch_size = 24
     steps_per_epoch = int(count_lines(train_path["movies"]) / batch_size)
-    print("Steps per ep")
     train_model(model, train_path["movies"], batch_size, steps_per_epoch)
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
