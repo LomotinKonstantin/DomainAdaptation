@@ -10,7 +10,7 @@ from keras.callbacks import CSVLogger
 
 def count_lines(filename: str) -> int:
     count = 0
-    for _ in open(filename):
+    for line in open(filename):
         count += 1
     return count
 
@@ -154,7 +154,8 @@ if __name__ == '__main__':
                   optimizer='adagrad')
     print("Starting model training")
     batch_size = 3000
-    steps_per_epoch = int(batch_size / count_lines(train_path["movies"]))
+    steps_per_epoch = int(count_lines(train_path["movies"]) / batch_size)
+    print("Steps per ep")
     train_model(model, train_path["movies"], batch_size, steps_per_epoch)
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
