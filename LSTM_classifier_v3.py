@@ -17,13 +17,12 @@ def count_lines(filename: str) -> int:
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
     if len(vector) == 0:
-        return np.zeros([1, 128])
-    array = np.array([np.array(sublist) for sublist in vector])
-    try:
-        return np.pad(array, ((0, padding_size - len(array)), (0, 0)),
-                      mode='constant', constant_values=0.0)
-    except Exception as e:
-        return np.zeros([1, 128])
+        array = np.zeros([1, 128])
+    else:
+        array = np.array([np.array(sublist) for sublist in vector])
+    res = np.pad(array, ((0, padding_size - len(array)), (0, 0)),
+                 mode='constant', constant_values=0.0)
+    return res
 
 
 def process_batch(batch: pd.DataFrame):
