@@ -1,4 +1,5 @@
 import sys
+import os
 from datetime import datetime
 from keras.models import load_model
 import pandas as pd
@@ -13,9 +14,12 @@ def get_timestamp() -> str:
 
 
 def append_timestamp(path: str) -> str:
-    parts = path.split(".")
-    new_part = parts[-2] + get_timestamp()
-    return ".".join([new_part, parts[-1]])
+    parts = os.path.split(path)
+    filename = parts[-1]
+    filename_parts = filename.split(".")
+    new_filename = ".".join([".".join(filename_parts[:-1]) + "_" + get_timestamp(),
+                             filename_parts[-1]])
+    return os.path.join(parts[-1], new_filename)
 
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
@@ -82,7 +86,6 @@ def data_generator(path: str, batch_size: int) -> tuple:
 if __name__ == '__main__':
     model_path = sys.argv[1]
     test_path = sys.argv[2]
-    report_path = sys.argv[3]
-
+    report_path = append_timestamp(sys.argv[3])
     model = load_model(model_path)
-    test_model(model, test_path, append_timestamp(report_path), 3000)
+    test_model(model, test_path, report_path, 3000)
