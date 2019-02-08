@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 def get_timestamp() -> str:
-    timestamp = datetime.today().strftime("%d-%b-%Y___%X")
+    timestamp = datetime.today().strftime("%d-%b-%Y__%X")
     timestamp = timestamp.replace(":", "-")
     return timestamp
 
@@ -88,17 +88,23 @@ def train_test_generator(fname: str,
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
+    generator = batch_generator(fname=path,  # from_line=9200, to_line=9500,
+                                batch_size=batch_size)
+    for num, batch in enumerate(generator):
+        process_batch(batch)
+        X = batch["vectors"].values
+        y = batch["target_bin"].values
+        # Postprocessing
+        X = np.array(list(X))
+        y = y.reshape([-1, 1, 1])
+        yield X, y
+
+
+def indefinite_data_generator(path: str, batch_size: int):
     while True:
-        generator = batch_generator(fname=path,  # from_line=9200, to_line=9500,
-                                    batch_size=batch_size)
-        for num, batch in enumerate(generator):
-            process_batch(batch)
-            X = batch["vectors"].values
-            y = batch["target_bin"].values
-            # Postprocessing
-            X = np.array(list(X))
-            y = y.reshape([-1, 1, 1])
-            yield X, y
+        generator = data_generator(path, batch_size)
+        for data_tuple in generator:
+            yield data_tuple
 
 
 def train_model(model,
@@ -108,7 +114,7 @@ def train_model(model,
                 log_fname: str):
     csv_logger = CSVLogger(log_fname,
                            append=True, separator='\t')
-    generator = data_generator(train_path, batch_size)
+    generator = indefinite_data_generator(train_path, batch_size)
     model.fit_generator(generator,
                         steps_per_epoch=steps_per_epoch,
                         epochs=3,
@@ -177,3 +183,4 @@ if __name__ == '__main__':
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
     model.save("../models/LSTM_v3.hdf5")
+    print("Done!")
