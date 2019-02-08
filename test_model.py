@@ -19,7 +19,7 @@ def append_timestamp(path: str) -> str:
     filename_parts = filename.split(".")
     new_filename = ".".join([".".join(filename_parts[:-1]) + "_" + get_timestamp(),
                              filename_parts[-1]])
-    return os.path.join(parts[-1], new_filename)
+    return os.path.join(*parts[:-1], new_filename)
 
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
