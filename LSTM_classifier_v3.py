@@ -81,16 +81,17 @@ def train_test_generator(fname: str,
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
-    generator = batch_generator(fname=path, from_line=9200, to_line=9500,
-                                batch_size=batch_size)
-    for num, batch in enumerate(generator):
-        process_batch(batch)
-        X = batch["vectors"].values
-        y = batch["target_bin"].values
-        # Postprocessing
-        X = np.array(list(X))
-        y = y.reshape([-1, 1, 1])
-        yield X, y
+    while True:
+        generator = batch_generator(fname=path,  # from_line=9200, to_line=9500,
+                                    batch_size=batch_size)
+        for num, batch in enumerate(generator):
+            process_batch(batch)
+            X = batch["vectors"].values
+            y = batch["target_bin"].values
+            # Postprocessing
+            X = np.array(list(X))
+            y = y.reshape([-1, 1, 1])
+            yield X, y
 
 
 def train_model(model, train_path: str, batch_size: int, steps_per_epoch: int):
@@ -154,7 +155,7 @@ if __name__ == '__main__':
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
     print("Starting model training")
-    batch_size = 24
+    batch_size = 3000
     steps_per_epoch = int(count_lines(train_path["movies"]) / batch_size)
     train_model(model, train_path["movies"], batch_size, steps_per_epoch)
     print("Testing model")
