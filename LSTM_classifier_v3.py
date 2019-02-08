@@ -6,6 +6,13 @@ from keras.backend import clear_session
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from keras.callbacks import CSVLogger
+from datetime import datetime
+
+
+def get_timestamp() -> str:
+    timestamp = datetime.today().strftime("%d-%b-%Y___%X")
+    timestamp = timestamp.replace(":", "-")
+    return timestamp
 
 
 def count_lines(filename: str) -> int:
@@ -94,8 +101,12 @@ def data_generator(path: str, batch_size: int) -> tuple:
             yield X, y
 
 
-def train_model(model, train_path: str, batch_size: int, steps_per_epoch: int):
-    csv_logger = CSVLogger('../reports/training_log.csv',
+def train_model(model,
+                train_path: str,
+                batch_size: int,
+                steps_per_epoch: int,
+                log_fname: str):
+    csv_logger = CSVLogger(log_fname,
                            append=True, separator='\t')
     generator = data_generator(train_path, batch_size)
     model.fit_generator(generator,
@@ -136,13 +147,13 @@ def test_model(model, test_path: str, report_path: str, batch_size: int):
 
 if __name__ == '__main__':
     print("Started")
+    timestamp = get_timestamp()
     train_path = {"electr": "../data/train_electr_vectors_balanced.csv",
                   "movies": "../data/train_movies_vectors_balanced.csv"}
     # debug_train_path = {"electr": "../data/train_electr_vectors_balanced.csv",
     #                     "movies": "../data/movies_vectors_balanced.csv"}
     test_path = {"electr": "../data/test_electr_vectors_balanced.csv",
                  "movies": "../data/test_movies_vectors_balanced.csv"}
-    report_path = "../reports/report_LSTM_v3.csv"
     print("Creating model")
     clear_session()
     hidden_size1 = 32
@@ -157,7 +168,12 @@ if __name__ == '__main__':
     print("Starting model training")
     batch_size = 3000
     steps_per_epoch = int(count_lines(train_path["movies"]) / batch_size)
-    train_model(model, train_path["movies"], batch_size, steps_per_epoch)
+    log_fname = '../reports/training_log_{}.csv'.format(timestamp)
+    report_path = "../reports/report_LSTM_v3_{}.csv".format(timestamp)
+    train_model(model, train_path["movies"],
+                batch_size,
+                steps_per_epoch,
+                log_fname)
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
     model.save("../models/LSTM_v3.hdf5")
