@@ -2,6 +2,7 @@ import sys
 import os
 from datetime import datetime
 from keras.models import load_model
+from keras.callbacks import CSVLogger
 import pandas as pd
 import numpy as np
 from sklearn.metrics import classification_report
