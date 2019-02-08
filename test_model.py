@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 from keras.models import load_model
 import pandas as pd
 import numpy as np
@@ -13,7 +14,8 @@ def get_timestamp() -> str:
 
 def append_timestamp(path: str) -> str:
     parts = path.split(".")
-    return ".".join([parts[:-2], parts[-2] + get_timestamp()])
+    new_part = parts[-2] + get_timestamp()
+    return ".".join([new_part, parts[-1]])
 
 
 def process_vector(vector: list, padding_size: int) -> np.ndarray:
