@@ -15,7 +15,7 @@ if __name__ == '__main__':
                  "movies": "../data/test_movies_vectors_balanced.csv"}
     print("Creating model")
     clear_session()
-    hidden_size1 = 256
+    hidden_size1 = 64
     hidden_size2 = 128
     model = Sequential()
     model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128)))
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
     print("Starting model training")
-    batch_size = 3000
+    batch_size = 1000
     steps_per_epoch = int(count_lines(train_path["movies"]) / batch_size)
     log_fname = '../reports/training_log_{}.csv'.format(timestamp)
     report_path = "../reports/report_LSTM_v3_{}.csv".format(timestamp)
