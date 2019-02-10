@@ -15,8 +15,8 @@ if __name__ == '__main__':
                  "movies": "../data/test_movies_vectors_balanced.csv"}
     print("Creating model")
     clear_session()
-    hidden_size1 = 32
-    hidden_size2 = 256
+    hidden_size1 = 256
+    hidden_size2 = 128
     model = Sequential()
     model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128)))
     # model.add(LSTM(hidden_size2, return_sequences=True))
@@ -35,5 +35,5 @@ if __name__ == '__main__':
                 log_fname)
     print("Testing model")
     test_model(model, test_path["movies"], report_path, batch_size)
-    model.save("../models/LSTM_v3.hdf5")
+    model.save("../models/LSTM_v3_{}.hdf5".format(hidden_size1))
     print("Done!")
