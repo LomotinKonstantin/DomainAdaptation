@@ -95,7 +95,7 @@ def train_model(model,
                         steps_per_epoch=steps_per_epoch,
                         epochs=3,
                         verbose=1,
-                        callbacks=[csv_logger], use_multiprocessing=True)
+                        callbacks=[csv_logger], use_multiprocessing=False)
 
 
 def test_model(model, test_path: str, report_path: str, batch_size: int):
