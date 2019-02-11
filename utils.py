@@ -87,7 +87,8 @@ def train_model(model,
                 train_path: str,
                 batch_size: int,
                 steps_per_epoch: int,
-                log_fname: str):
+                log_fname: str,
+                epochs: int):
     csv_logger = CSVLogger(log_fname,
                            append=True, separator='\t')
     generator = indefinite_data_generator(train_path, batch_size)
