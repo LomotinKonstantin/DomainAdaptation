@@ -94,7 +94,7 @@ def train_model(model,
     generator = indefinite_data_generator(train_path, batch_size)
     model.fit_generator(generator,
                         steps_per_epoch=steps_per_epoch,
-                        epochs=3,
+                        epochs=epochs,
                         verbose=1,
                         callbacks=[csv_logger], use_multiprocessing=False)
 
