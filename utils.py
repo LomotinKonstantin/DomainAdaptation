@@ -99,7 +99,7 @@ def train_model(model,
                         callbacks=[csv_logger], use_multiprocessing=False)
 
 
-def test_model(model, test_path: str, report_path: str, batch_size: int):
+def test_model(model, test_path: str, report_path: str, batch_size: int, comment=""):
     y_true = []
     y_pred = []
     cntr = 1
@@ -113,6 +113,7 @@ def test_model(model, test_path: str, report_path: str, batch_size: int):
     report = classification_report(y_true, y_pred)
     with open(report_path, "w") as report_file:
         report_file.write(report)
+        report_file.write("\n" + comment)
 
 
 def train_test_generator(fname: str,
