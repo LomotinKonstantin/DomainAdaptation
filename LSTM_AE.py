@@ -1,7 +1,21 @@
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
 
-from utils import get_timestamp, train_model, count_lines, test_model
+from utils import get_timestamp, train_model, count_lines, test_model, data_generator
+
+
+def validate_data(paths: list):
+    for file in paths:
+        g = data_generator(file, 1000)
+        for n, (x, y) in enumerate(g):
+            if x.shape[2] != 128 or y.shape[1] != 128:
+                print("Invalid batch #{} with size {} in file {}:"
+                      "\n X.shape = {}, y.shape = {}".format(n,
+                                                             1000,
+                                                             file,
+                                                             x.shape,
+                                                             y.shape))
+                exit()
 
 
 if __name__ == '__main__':
@@ -11,6 +25,11 @@ if __name__ == '__main__':
                   "movies": "../data/train_movies_vectors_balanced.csv"}
     test_path = {"electr": "../data/test_electr_vectors_balanced.csv",
                  "movies": "../data/test_movies_vectors_balanced.csv"}
+    print("Validating data shape")
+    validate_data([train_path["electr"],
+                   train_path["movies"],
+                   test_path["electr"],
+                   test_path["movies"]])
     data_dim = 128
     num_classes = 2
     latent_space_dim = 32
