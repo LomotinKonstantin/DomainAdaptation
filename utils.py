@@ -1,7 +1,5 @@
-import sys
 import os
 from datetime import datetime
-from keras.models import load_model
 from keras.callbacks import CSVLogger
 import pandas as pd
 import numpy as np
@@ -76,15 +74,22 @@ def data_generator(path: str, batch_size: int) -> tuple:
         yield X, y
 
 
-def indefinite_data_generator(path: str, batch_size: int):
-    while True:
-        generator = data_generator(path, batch_size)
-        for data_tuple in generator:
-            yield data_tuple
+def indefinite_data_generator(path, batch_size: int):
+    if type(path) == str:
+        while True:
+            generator = data_generator(path, batch_size)
+            for data_tuple in generator:
+                yield data_tuple
+    elif type(path) == list:
+        while True:
+            for file in path:
+                generator = data_generator(file, batch_size)
+                for data_tuple in generator:
+                    yield data_tuple
 
 
 def train_model(model,
-                train_path: str,
+                train_path,
                 batch_size: int,
                 steps_per_epoch: int,
                 log_fname: str,

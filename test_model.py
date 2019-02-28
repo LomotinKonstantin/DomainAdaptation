@@ -1,7 +1,6 @@
 import sys
-import os
 from keras.models import load_model
-from utils import *
+from utils import append_timestamp, test_model
 
 
 if __name__ == '__main__':
