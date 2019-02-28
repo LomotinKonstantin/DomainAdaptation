@@ -8,7 +8,7 @@ def validate_data(paths: list):
     for file in paths:
         g = data_generator(file, 1000)
         for n, (x, y) in enumerate(g):
-            if x.shape[2] != 128 or y.shape[1] != 128:
+            if x.shape[2] != 128:
                 print("Invalid batch #{} with size {} in file {}:"
                       "\n X.shape = {}, y.shape = {}".format(n,
                                                              1000,
