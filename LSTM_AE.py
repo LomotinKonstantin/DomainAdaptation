@@ -25,11 +25,11 @@ if __name__ == '__main__':
                   "movies": "../data/train_movies_vectors_balanced.csv"}
     test_path = {"electr": "../data/test_electr_vectors_balanced.csv",
                  "movies": "../data/test_movies_vectors_balanced.csv"}
-    print("Validating data shape")
-    validate_data([train_path["electr"],
-                   train_path["movies"],
-                   test_path["electr"],
-                   test_path["movies"]])
+    # print("Validating data shape")
+    # validate_data([train_path["electr"],
+    #                train_path["movies"],
+    #                test_path["electr"],
+    #                test_path["movies"]])
     data_dim = 128
     num_classes = 2
     latent_space_dim = 32
@@ -40,7 +40,6 @@ if __name__ == '__main__':
     model.add(LSTM(latent_space_dim, return_sequences=True,
                    input_shape=(None, data_dim)))
     model.add(LSTM(data_dim, return_sequences=True))
-    # model.add(Dense(num_classes, activation='softmax'))
 
     model.compile(loss='mean_squared_error',
                   optimizer='adagrad')

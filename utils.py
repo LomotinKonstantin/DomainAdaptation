@@ -71,6 +71,8 @@ def data_generator(path: str, batch_size: int) -> tuple:
         # Postprocessing
         X = np.array(list(X))
         y = y.reshape([-1, 1, 1])
+        if X.shape[-2:] == (1, 1):
+            continue
         yield X, y
 
 
