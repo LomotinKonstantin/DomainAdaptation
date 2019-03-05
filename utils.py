@@ -71,8 +71,6 @@ def data_generator(path: str, batch_size: int) -> tuple:
         # Postprocessing
         X = np.array(list(X))
         y = y.reshape([-1, 1, 1])
-        if X.shape[-2:] == (1, 1):
-            continue
         yield X, y
 
 
@@ -90,15 +88,32 @@ def indefinite_data_generator(path, batch_size: int):
                     yield data_tuple
 
 
+def indefinite_AE_data_generator(path, batch_size: int):
+    if type(path) == str:
+        while True:
+            generator = data_generator(path, batch_size)
+            for X, _ in generator:
+                yield X, X
+    elif type(path) == list:
+        while True:
+            for file in path:
+                generator = data_generator(file, batch_size)
+                for X, _ in generator:
+                    yield X, X
+
+
 def train_model(model,
                 train_path,
                 batch_size: int,
                 steps_per_epoch: int,
                 log_fname: str,
-                epochs: int):
+                epochs: int, ae=False):
     csv_logger = CSVLogger(log_fname,
                            append=True, separator='\t')
-    generator = indefinite_data_generator(train_path, batch_size)
+    if ae:
+        generator = indefinite_AE_data_generator(train_path, batch_size)
+    else:
+        generator = indefinite_data_generator(train_path, batch_size)
     model.fit_generator(generator,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,

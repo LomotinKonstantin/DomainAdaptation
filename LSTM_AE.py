@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 batch_size=batch_size,
                 steps_per_epoch=steps_per_epoch,
                 log_fname=log_fname,
-                epochs=epochs)
+                epochs=epochs, ae=True)
     model.layers.pop()
     hidden_size1 = 64
     hidden_size2 = 128
