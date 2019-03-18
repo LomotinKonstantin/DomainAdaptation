@@ -63,6 +63,7 @@ if __name__ == '__main__':
                 log_fname=log_fname,
                 epochs=epochs, ae=True)
     model.layers.pop()
+    model.save("../models/AE_layers_popped_{}.hdf5".format(timestamp))
     hidden_size1 = 64
     hidden_size2 = 128
     model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128)))
