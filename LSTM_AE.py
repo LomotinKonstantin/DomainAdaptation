@@ -1,3 +1,6 @@
+from os.path import exists
+from os import mkdir
+
 from keras.models import Sequential
 from keras.layers import LSTM, Dense
 
@@ -43,13 +46,16 @@ if __name__ == '__main__':
 
     model.compile(loss='mean_squared_error',
                   optimizer='adagrad')
-    batch_size = 2000
-    epochs = 2
+    batch_size = 50
+    epochs = 10
     movies_lines = count_lines(train_path["movies"])
     electr_lines = count_lines(train_path["electr"])
     total_lines = movies_lines + electr_lines
     steps_per_epoch = int(total_lines / batch_size)
-    log_fname = '../reports/training_AE_{}.csv'.format(timestamp)
+    report_folder = "../reports/{}".format(timestamp)
+    if not exists(report_folder):
+        mkdir(report_folder)
+    log_fname = '{}/training_AE.csv'.format(report_folder)
     train_model(model,
                 [train_path["electr"], train_path["movies"]],
                 batch_size=batch_size,
@@ -66,8 +72,8 @@ if __name__ == '__main__':
     model.compile(loss='binary_crossentropy',
                   optimizer='adagrad')
     steps_per_epoch = int(movies_lines / batch_size)
-    epochs = 2
-    log_fname = '../reports/training_AE_classifier_{}.csv'.format(timestamp)
+    epochs = 10
+    log_fname = '{}/training_AE_classifier.csv'.format(report_folder)
     print("Training classifier")
     train_model(model,
                 train_path["movies"],
@@ -76,9 +82,9 @@ if __name__ == '__main__':
                 log_fname=log_fname,
                 epochs=epochs)
     print("Testing model")
-    report_path = "../reports/report_LSTM_AE_source_{}.csv".format(timestamp)
+    report_path = "{}/report_LSTM_AE_source.csv".format(report_folder)
     test_model(model, test_path["movies"], report_path, batch_size)
-    report_path = "../reports/report_LSTM_AE_target_{}.csv".format(timestamp)
+    report_path = "{}/report_LSTM_AE_target.csv".format(report_folder)
     test_model(model, test_path["electr"], report_path, batch_size)
-    model.save("../models/LSTM_AE_{}.hdf5".format(hidden_size1))
+    model.save("../models/LSTM_AE_{}_{}.hdf5".format(hidden_size1, timestamp))
     print("Done!")
