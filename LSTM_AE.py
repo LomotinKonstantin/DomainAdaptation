@@ -44,10 +44,10 @@ if __name__ == '__main__':
                    input_shape=(None, data_dim)))
     model.add(LSTM(data_dim, return_sequences=True))
 
-    model.compile(loss='mean_squared_error',
-                  optimizer='adagrad')
-    batch_size = 50
-    epochs = 10
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam')
+    batch_size = 2000
+    epochs = 20
     movies_lines = count_lines(train_path["movies"])
     electr_lines = count_lines(train_path["electr"])
     total_lines = movies_lines + electr_lines
@@ -56,11 +56,14 @@ if __name__ == '__main__':
     if not exists(report_folder):
         mkdir(report_folder)
     log_fname = '{}/training_AE.csv'.format(report_folder)
+    mem_logfile_AE = "{}/memlog_AE.log".format(report_folder)
+    mem_logfile_classifier = "{}/memlog_classifier.log".format(report_folder)
     train_model(model,
                 [train_path["electr"], train_path["movies"]],
                 batch_size=batch_size,
                 steps_per_epoch=steps_per_epoch,
                 log_fname=log_fname,
+                memlog_fname=mem_logfile_AE,
                 epochs=epochs, ae=True)
     model.layers.pop()
     model.save("../models/AE_layers_popped_{}.hdf5".format(timestamp))
@@ -71,9 +74,9 @@ if __name__ == '__main__':
     # model.add(Dense(hidden_size2, activation="hard_sigmoid"))
     model.add(Dense(1, activation='hard_sigmoid'))
     model.compile(loss='binary_crossentropy',
-                  optimizer='adagrad')
+                  optimizer='adam')
     steps_per_epoch = int(movies_lines / batch_size)
-    epochs = 10
+    epochs = 20
     log_fname = '{}/training_AE_classifier.csv'.format(report_folder)
     print("Training classifier")
     train_model(model,
@@ -81,6 +84,7 @@ if __name__ == '__main__':
                 batch_size=batch_size,
                 steps_per_epoch=steps_per_epoch,
                 log_fname=log_fname,
+                memlog_fname=mem_logfile_classifier,
                 epochs=epochs)
     print("Testing model")
     report_path = "{}/report_LSTM_AE_source.csv".format(report_folder)

@@ -1,10 +1,48 @@
 import os
 from datetime import datetime
-from keras.callbacks import CSVLogger
+from keras.callbacks import CSVLogger, Callback
 import pandas as pd
 import numpy as np
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+
+
+class CustomCallback(Callback):
+
+    def __init__(self, memlog_file):
+        super().__init__()
+        self.memlog_file = memlog_file
+        self.losses = []
+
+    # def on_train_begin(self, logs=None):
+    #     if logs is None:
+    #         logs = {}
+    #     return
+    #
+    # def on_train_end(self, logs=None):
+    #     if logs is None:
+    #         logs = {}
+    #     return
+    #
+    # def on_epoch_begin(self, epoch, logs=None):
+    #     if logs is None:
+    #         logs = {}
+    #     return
+    #
+    def on_epoch_end(self, epoch, logs=None):
+        memlog(self.memlog_file)
+        return
+    #
+    # def on_batch_begin(self, batch, logs=None):
+    #     if logs is None:
+    #         logs = {}
+    #     return
+    #
+    # def on_batch_end(self, batch, logs=None):
+    #     if logs is None:
+    #         logs = {}
+    #     self.losses.append(logs.get('loss'))
+    #     return
 
 
 def count_lines(filename: str) -> int:
@@ -61,6 +99,10 @@ def batch_generator(fname: str,
         yield batch
 
 
+def memlog(file_path: str):
+    os.system("free -m &>>{}".format(file_path))
+
+
 def data_generator(path: str, batch_size: int) -> tuple:
     generator = batch_generator(fname=path,  # from_line=9200, to_line=9500,
                                 batch_size=batch_size)
@@ -107,9 +149,11 @@ def train_model(model,
                 batch_size: int,
                 steps_per_epoch: int,
                 log_fname: str,
+                memlog_fname: str,
                 epochs: int, ae=False):
     csv_logger = CSVLogger(log_fname,
                            append=True, separator='\t')
+    mem_logger = CustomCallback(memlog_fname)
     if ae:
         generator = indefinite_AE_data_generator(train_path, batch_size)
     else:
@@ -118,7 +162,7 @@ def train_model(model,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
                         verbose=1,
-                        callbacks=[csv_logger], use_multiprocessing=False)
+                        callbacks=[csv_logger, mem_logger], use_multiprocessing=False)
 
 
 def test_model(model, test_path: str, report_path: str, batch_size: int, comment=""):
