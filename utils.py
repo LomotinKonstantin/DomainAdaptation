@@ -100,7 +100,7 @@ def batch_generator(fname: str,
 
 
 def memlog(file_path: str):
-    os.system("free -m &>>{}".format(file_path))
+    os.system('sudo bash -c "free -m &>>{}"'.format(file_path))
 
 
 def data_generator(path: str, batch_size: int) -> tuple:
