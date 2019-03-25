@@ -54,7 +54,7 @@ if __name__ == '__main__':
         if epoch >= total_epochs:
             model.layers.pop()
             model.save(model_path)
-            print("Done")
+            print("Done", epoch, "/", total_epochs, "epochs")
             exit()
         model.save(model_path)
     else:
