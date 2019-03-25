@@ -68,7 +68,7 @@ if __name__ == '__main__':
         swap_config.add_section(swap_section)
         swap_config.set(swap_section, "model_path", model_path)
         swap_config.set(swap_section, "steps_per_epoch", str(steps_per_epoch))
-        swap_config.write(open("swap_config.ini"))
+        swap_config.write(open("swap_config.ini", "w"))
         epoch = -1
-    Popen(["python3" "AE_layers.py", str(epoch + 1)])
+    Popen("python3 AE_layers.py {}".format(str(epoch + 1)), shell=True)
 
