@@ -148,12 +148,17 @@ def train_model(model,
                 train_path,
                 batch_size: int,
                 steps_per_epoch: int,
-                log_fname: str,
-                memlog_fname: str,
+                log_fname: str or None,
+                memlog_fname: str or None,
                 epochs: int, ae=False):
-    csv_logger = CSVLogger(log_fname,
-                           append=True, separator='\t')
-    mem_logger = CustomCallback(memlog_fname)
+    callbacks = []
+    if log_fname is not None:
+        csv_logger = CSVLogger(log_fname,
+                               append=True, separator='\t')
+        callbacks.append(csv_logger)
+    if memlog_fname is not None:
+        mem_logger = CustomCallback(memlog_fname)
+        callbacks.append(mem_logger)
     if ae:
         generator = indefinite_AE_data_generator(train_path, batch_size)
     else:
@@ -162,7 +167,7 @@ def train_model(model,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
                         verbose=1,
-                        callbacks=[csv_logger, mem_logger], use_multiprocessing=False)
+                        callbacks=callbacks, use_multiprocessing=False)
 
 
 def test_model(model, test_path: str, report_path: str, batch_size: int, comment=""):

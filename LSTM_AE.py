@@ -1,24 +1,34 @@
-from os.path import exists
-from os import mkdir
+from os.path import exists, getctime, join
+from os import mkdir, listdir
 
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dense
 
 from utils import get_timestamp, train_model, count_lines, test_model, data_generator
 
 
-def validate_data(paths: list):
-    for file in paths:
-        g = data_generator(file, 1000)
-        for n, (x, y) in enumerate(g):
-            if x.shape[2] != 128:
-                print("Invalid batch #{} with size {} in file {}:"
-                      "\n X.shape = {}, y.shape = {}".format(n,
-                                                             1000,
-                                                             file,
-                                                             x.shape,
-                                                             y.shape))
-                exit()
+def create_AE_model(latent_space_dim: int, data_dim: int):
+    model = Sequential()
+    model.add(LSTM(latent_space_dim, return_sequences=True,
+                   input_shape=(None, data_dim)))
+    model.add(LSTM(data_dim, return_sequences=True))
+
+    model.compile(loss='binary_crossentropy',
+                  optimizer='adam')
+    return model
+
+
+def most_recent_AE_model(folder: str):
+    files = listdir(folder)
+    ae_models = list(filter(
+        lambda a: a.startswith("AE_layers_popped"),
+        files
+    ))
+    if len(ae_models) == 0:
+        return None
+    most_recent = max(ae_models,
+                      key=lambda a: getctime(join("..", "models", a)))
+    return load_model(most_recent)
 
 
 if __name__ == '__main__':
@@ -39,13 +49,7 @@ if __name__ == '__main__':
     print("Creating model")
     print("Training AE layers")
     # expected input data shape: (batch_size, timesteps, data_dim)
-    model = Sequential()
-    model.add(LSTM(latent_space_dim, return_sequences=True,
-                   input_shape=(None, data_dim)))
-    model.add(LSTM(data_dim, return_sequences=True))
 
-    model.compile(loss='binary_crossentropy',
-                  optimizer='adam')
     batch_size = 2000
     epochs = 20
     movies_lines = count_lines(train_path["movies"])
@@ -58,6 +62,7 @@ if __name__ == '__main__':
     log_fname = '{}/training_AE.csv'.format(report_folder)
     mem_logfile_AE = "{}/memlog_AE.log".format(report_folder)
     mem_logfile_classifier = "{}/memlog_classifier.log".format(report_folder)
+    model = create_AE_model()
     train_model(model,
                 [train_path["electr"], train_path["movies"]],
                 batch_size=batch_size,
