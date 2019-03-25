@@ -65,6 +65,7 @@ if __name__ == '__main__':
         total_lines = movies_lines + electr_lines
         steps_per_epoch = int(total_lines / batch_size)
 
+        swap_config.add_section(swap_section)
         swap_config.set(swap_section, "model_path", model_path)
         swap_config.set(swap_section, "steps_per_epoch", steps_per_epoch)
         swap_config.write(open("swap_config.ini"))
