@@ -150,7 +150,7 @@ def train_model(model,
                 steps_per_epoch: int,
                 log_fname: str or None,
                 memlog_fname: str or None,
-                epochs: int, ae=False):
+                epochs: int, ae=False, verbose=0):
     callbacks = []
     if log_fname is not None:
         csv_logger = CSVLogger(log_fname,
@@ -166,7 +166,7 @@ def train_model(model,
     model.fit_generator(generator,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
-                        verbose=1,
+                        verbose=verbose,
                         callbacks=callbacks, use_multiprocessing=False)
 
 

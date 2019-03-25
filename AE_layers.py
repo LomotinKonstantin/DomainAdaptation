@@ -37,11 +37,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         step = 2
         epoch = int(sys.argv[1])
+        print("Process for epochs {}-{}", epoch, epoch + step)
         swap_config.read(swap_config_file)
         total_epochs = ae_config.getint("Training", "epochs")
-        if epoch > total_epochs:
-            print("Done!")
-            exit()
         steps_per_epoch = swap_config.getint(swap_section, "steps_per_epoch")
         model_path = swap_config.get(swap_section, "model_path")
         model = load_model(model_path)
@@ -52,6 +50,12 @@ if __name__ == '__main__':
                     log_fname=None,
                     memlog_fname=None,
                     epochs=min(step, total_epochs-epoch), ae=True)
+        epoch += step
+        if epoch >= total_epochs:
+            model.layers.pop()
+            model.save(model_path)
+            print("Done")
+            exit()
         model.save(model_path)
     else:
         timestamp = get_timestamp()
@@ -70,5 +74,5 @@ if __name__ == '__main__':
         swap_config.set(swap_section, "steps_per_epoch", str(steps_per_epoch))
         swap_config.write(open("swap_config.ini", "w"))
         epoch = -1
-    Popen("python3 AE_layers.py {}".format(str(epoch + 1)), shell=True)
+    Popen("python3 AE_layers.py {}".format(str(epoch)), shell=True)
 
