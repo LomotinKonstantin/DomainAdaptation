@@ -2,14 +2,14 @@ import sys
 from subprocess import Popen
 from configparser import ConfigParser
 
-from keras.models import Sequential, load_model
+from keras.models import load_model
 from keras.layers import LSTM, Dense
 
 from utils import get_timestamp, train_model, count_lines
 
 
 def create_classifier(model, hidden_size1: int):
-    model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128)))
+    model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128), name="class_lstm1"))
     model.add(Dense(1, activation='hard_sigmoid'))
     model.compile(loss='binary_crossentropy',
                   optimizer='adam')
