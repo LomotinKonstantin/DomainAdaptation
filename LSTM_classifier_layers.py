@@ -27,6 +27,7 @@ if __name__ == '__main__':
     swap_config = ConfigParser()
     swap_section = "Settings"
     swap_config_file = "swap_config.ini"
+    swap_config.read(swap_config_file)
 
     batch_size = lstm_config.getint("Settings", "batch_size")
     train_path = dict(data_config["Training"])
@@ -34,7 +35,6 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         step = 2
         epoch = int(sys.argv[1])
-        swap_config.read(swap_config_file)
         print("Process for epochs {}-{}".format(epoch, epoch + step))
         total_epochs = lstm_config.getint("Settings", "epochs")
         model_path = swap_config.get(swap_config, "model_path")
