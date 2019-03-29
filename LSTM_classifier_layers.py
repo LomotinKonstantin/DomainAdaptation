@@ -9,7 +9,10 @@ from utils import get_timestamp, train_model, count_lines
 
 
 def create_classifier(model, hidden_size1: int):
-    model.add(LSTM(hidden_size1, return_sequences=True, input_shape=(None, 128), name="class_lstm1"))
+    model.add(LSTM(hidden_size1,
+                   return_sequences=True,
+                   input_shape=(None, 128),
+                   name="lstm_class_1"))
     model.add(Dense(1, activation='hard_sigmoid'))
     model.compile(loss='binary_crossentropy',
                   optimizer='adam')
@@ -37,7 +40,7 @@ if __name__ == '__main__':
         epoch = int(sys.argv[1])
         print("Process for epochs {}-{}".format(epoch, epoch + step))
         total_epochs = lstm_config.getint("Settings", "epochs")
-        model_path = swap_config.get(swap_config, "model_path")
+        model_path = swap_config.get(swap_section, "model_path")
         model = load_model(model_path)
         steps_per_epoch = swap_config.getint(swap_section, "steps_per_epoch")
         train_model(model,
