@@ -76,7 +76,7 @@ if __name__ == '__main__':
     else:
         timestamp = get_timestamp()
         layers = eval(ae_config.get(ae_section, "layers"))
-        data_dim = ae_config.get(ae_section, "data_dim")
+        data_dim = ae_config.getint(ae_section, "data_dim")
         model = create_SDAE_model(layers, data_dim)
         model_path = "../models/SDAE_layers_popped_{}.hdf5".format(timestamp)
         model.save(model_path)
