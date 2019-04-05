@@ -150,7 +150,8 @@ def train_model(model,
                 steps_per_epoch: int,
                 log_fname: str or None,
                 memlog_fname: str or None,
-                epochs: int, ae=False, verbose=0):
+                epochs: int, ae=False,
+                verbose=0, noise_decorator=None):
     callbacks = []
     if log_fname is not None:
         csv_logger = CSVLogger(log_fname,
@@ -163,6 +164,8 @@ def train_model(model,
         generator = indefinite_AE_data_generator(train_path, batch_size)
     else:
         generator = indefinite_data_generator(train_path, batch_size)
+    if noise_decorator is not None:
+        generator = noise_decorator(generator, ae)
     model.fit_generator(generator,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
