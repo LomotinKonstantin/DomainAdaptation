@@ -43,10 +43,9 @@ def train_DANN(classifier_model,
         # Target domain кодируем 1
         domain_t = np.full(y_t.shape, fill_value=1)
         classifier_model.fit(X_s, y_s, epochs=1, verbose=0)
-        da_model.fit(*unison_shuffled_copies(np.array([*X_s, *X_t]),
-                                             np.array([*domain_s, *domain_t])),
-                     epochs=1,
-                     verbose=0)
+        da_model.fit(X_s, domain_s, epochs=1, verbose=0)
+        da_model.fit(X_t, domain_t, epochs=1, verbose=0)
+
         if i % 10 == 0:
             classifier_model.save(class_model_path)
             comb_model.save(comb_model_path)
