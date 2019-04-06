@@ -103,8 +103,8 @@ def memlog(file_path: str):
     os.system('sudo bash -c "free -m &>>{}"'.format(file_path))
 
 
-def data_generator(path: str, batch_size: int) -> tuple:
-    generator = batch_generator(fname=path,  # from_line=9200, to_line=9500,
+def data_generator(path: str, batch_size: int, from_line=None) -> tuple:
+    generator = batch_generator(fname=path, from_line=from_line, # to_line=9500,
                                 batch_size=batch_size)
     for num, batch in enumerate(generator):
         process_batch(batch)
@@ -116,7 +116,7 @@ def data_generator(path: str, batch_size: int) -> tuple:
         yield X, y
 
 
-def indefinite_data_generator(path, batch_size: int):
+def indefinite_data_generator(path, batch_size: int, from_line=None):
     if type(path) == str:
         while True:
             generator = data_generator(path, batch_size)
