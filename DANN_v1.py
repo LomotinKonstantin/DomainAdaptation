@@ -35,7 +35,7 @@ def train_DANN(classifier_model,
     source_gen = indefinite_data_generator(source_path, batch_size,)
     target_gen = indefinite_data_generator(target_path, batch_size,)
     for i in range(epochs):
-        print("Epoch {} / {}".format(i, epochs))
+        print("Epoch {} / {}".format(i + 1, epochs))
         X_s, y_s = next(source_gen)
         # Source domain кодируем 0
         domain_s = np.zeros(y_s.shape)
@@ -61,10 +61,10 @@ def create_DANN():
     # Domain adversarial layers
     d_a = GradientReversal(0.5)(feature_extractor)
     d_a = LSTM(64, return_sequences=True)(d_a)
-    d_a = LSTM(64, return_sequences=False)(d_a)
+    d_a = LSTM(64, return_sequences=True)(d_a)
     d_a = Dense(1, activation="softmax", name="domain_adv")(d_a)
     # Classification layers
-    classifier = LSTM(128, return_sequences=False)(feature_extractor)
+    classifier = LSTM(128, return_sequences=True)(feature_extractor)
     classifier = Dense(1, activation="softmax", name="classifier")(classifier)
 
     comb_model = Model(inputs=inputs, outputs=[classifier, d_a])
