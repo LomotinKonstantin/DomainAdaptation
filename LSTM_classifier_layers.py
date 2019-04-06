@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     else:
         timestamp = get_timestamp()
-        model_path = "../models/AE_classifier_{}.hdf5".format(timestamp)
+        model_path = "../models/SDAE_classifier_{}.hdf5".format(timestamp)
         model = load_model(swap_config.get(swap_section, "model_path"))
         hidden_size = lstm_config.getint("Settings", "hidden_size1")
         create_classifier(model, hidden_size)
