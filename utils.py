@@ -173,21 +173,28 @@ def train_model(model,
                         callbacks=callbacks, use_multiprocessing=False)
 
 
-def test_model(model, test_path: str, report_path: str, batch_size: int, comment=""):
+def test_model(model,
+               test_path: str,
+               report_path: str,
+               batch_size: int,
+               comment="", norm=False):
     y_true = []
     y_pred = []
     cntr = 1
     for X_test, y_test in data_generator(test_path, batch_size):
         print("Testing batch ", cntr)
         cntr += 1
-        predict = np.round(model.predict(X_test).mean(axis=1).reshape(-1))
+        predict = model.predict(X_test)
+        if norm:
+            predict = np.array(list(map(lambda x: (x > x.mean()).astype(int), predict)))
+        predict = np.round(predict.mean(axis=1).reshape(-1))
         predict = list(map(int, predict))
         y_true.extend(y_test.reshape(y_test.shape[0]))
         y_pred.extend(predict)
     report = classification_report(y_true, y_pred)
     with open(report_path, "w") as report_file:
         report_file.write(report)
-        report_file.write("\n" + comment)
+        report_file.write("\n" + comment + "\n")
 
 
 def train_test_generator(fname: str,
