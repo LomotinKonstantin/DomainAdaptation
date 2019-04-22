@@ -3,3 +3,4 @@
 *.npy
 *.model
 .idea/*
+references/*
