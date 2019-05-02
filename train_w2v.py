@@ -8,7 +8,7 @@ def sentence_generator(files: list, batch_size: int) -> pd.DataFrame:
     for fn in files:
         print(f"Training on {fn}")
         gen = pp_chunk_generator(fn, batch_size)
-        for num, batch in gen:
+        for batch in gen:
             sentence = [text.split() for text in batch["reviewText"].values]
             yield sentence
 
