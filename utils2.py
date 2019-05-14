@@ -45,14 +45,18 @@ def vector_chunk_generator(path: str,
                                      chunk_size,
                                      from_line=from_line,
                                      to_line=to_line):
-        chunk["vectors"] = text_to_matr(
-            chunk["reviewText"].apply(preprocessor.preprocess),
-            w2v_model
-        )
+        for i in chunk.index:
+            chunk.loc[i, "vectors"] = raw_to_vec(chunk.loc[i, "reviewText"],
+                                                 preprocessor,
+                                                 w2v_model)
         yield chunk
 
 
-def text_to_matr(text: str, w2v_model) -> np.array:
+def raw_to_vec(text: str, prepr: Preprocessor, w2v_model: Word2Vec):
+    return text_to_matr(prepr.preprocess(text), w2v_model)
+
+
+def text_to_matr(text: str, w2v_model: Word2Vec) -> np.array:
     tokens = text.split()
     vec_lst = []
     for word in tokens:
