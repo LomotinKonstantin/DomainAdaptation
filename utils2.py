@@ -46,9 +46,9 @@ def vector_chunk_generator(path: str,
                                      from_line=from_line,
                                      to_line=to_line):
         for i in chunk.index:
-            chunk.loc[i, "vectors"] = raw_to_vec(chunk.loc[i, "reviewText"],
-                                                 preprocessor,
-                                                 w2v_model)
+            chunk.at[i, "vectors"] = raw_to_vec(chunk.loc[i, "reviewText"],
+                                                preprocessor,
+                                                w2v_model).tolist()
         yield chunk
 
 
@@ -69,7 +69,7 @@ def text_to_matr(text: str, w2v_model: Word2Vec) -> np.array:
 
 if __name__ == '__main__':
     w2v = Word2Vec.load("../models/w2v_5dom.model")
-    gen = vector_chunk_generator("../data/reviews_Musical_Instruments_5.json.gz",
+    gen = vector_chunk_generator("../data/Kindle_Store_5.json.gz",
                                  chunk_size=10, to_line=10, from_line=100, w2v_model=w2v)
     df = next(gen)
     print(df)
