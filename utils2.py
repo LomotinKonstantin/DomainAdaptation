@@ -7,6 +7,7 @@ import os
 import numpy as np
 import pandas as pd
 from gensim.models import Word2Vec
+from sklearn.metrics import classification_report
 
 from preprocessor import Preprocessor
 
@@ -87,12 +88,12 @@ def append_timestamp(path: str) -> str:
     return os.path.join(*parts[:-1], new_filename)
 
 
-def training_data_generator(files: list,
-                            test_percent: float,
-                            chunk_size: int,
-                            w2v_model: Word2Vec,
-                            line_counts: dict,
-                            autoencoder: bool) -> np.array:
+def train_data_generator(files: list,
+                         test_percent: float,
+                         chunk_size: int,
+                         w2v_model: Word2Vec,
+                         line_counts: dict,
+                         autoencoder: bool) -> np.array:
     for i in files:
         assert os.path.exists(i)
         assert i in line_counts
@@ -114,6 +115,29 @@ def training_data_generator(files: list,
                 yield x, y
 
 
+def test_data_generator(files: list,
+                        test_percent: float,
+                        chunk_size: int,
+                        w2v_model: Word2Vec,
+                        line_counts: dict) -> np.array:
+    for i in files:
+        assert os.path.exists(i)
+        assert i in line_counts
+    assert 0 < test_percent < 1
+    assert chunk_size > 0
+    for fname in files:
+        from_line = int(line_counts[fname] * (1 - test_percent)) + 1
+        gen = vector_chunk_generator(fname,
+                                     chunk_size=chunk_size,
+                                     w2v_model=w2v_model, from_line=from_line)
+        for chunk in gen:
+            x = chunk["vectors"].values
+            y = chunk["overall"].values
+            y[y <= 3] = 0
+            y[y > 3] = 1
+            yield x, y
+
+
 def infinite_tr_vect_gen(files: list,
                          test_percent: float,
                          chunk_size: int,
@@ -121,12 +145,12 @@ def infinite_tr_vect_gen(files: list,
                          line_counts: dict,
                          autoencoder: bool) -> np.array:
     while True:
-        g = training_data_generator(files=files,
-                                    chunk_size=chunk_size,
-                                    w2v_model=w2v_model,
-                                    line_counts=line_counts,
-                                    autoencoder=autoencoder,
-                                    test_percent=test_percent)
+        g = train_data_generator(files=files,
+                                 chunk_size=chunk_size,
+                                 w2v_model=w2v_model,
+                                 line_counts=line_counts,
+                                 autoencoder=autoencoder,
+                                 test_percent=test_percent)
         for chunk in g:
             yield chunk
 
@@ -148,6 +172,8 @@ def train_model(model,
                                      line_counts=line_count_hint,
                                      autoencoder=ae,
                                      w2v_model=w2v_model)
+    if noise_decorator:
+        generator = noise_decorator(generator, ae)
     steps_per_epoch = sum(line_count_hint.values()) * (1 - test_percent) / batch_size
     steps_per_epoch = int(steps_per_epoch)
     model.fit_generator(generator,
@@ -155,6 +181,37 @@ def train_model(model,
                         epochs=epochs,
                         verbose=verbose,
                         callbacks=callbacks)
+
+
+def test_model(model,
+               test_paths: list,
+               test_percent: float,
+               line_count_hint: dict,
+               w2v_model: Word2Vec,
+               report_path: str,
+               batch_size: int,
+               comment="",
+               norm=False):
+    y_true = []
+    y_pred = []
+    cntr = 1
+    for X_test, y_test in test_data_generator(files=test_paths,
+                                              chunk_size=batch_size,
+                                              line_counts=line_count_hint,
+                                              test_percent=test_percent,
+                                              w2v_model=w2v_model):
+        print(f"Testing batch {cntr}")
+        cntr += 1
+        predict = model.predict(X_test)
+        if norm:
+            predict = np.array(list(map(lambda x: (x > x.mean()).astype(int), predict)))
+        predict = np.round(predict.mean(axis=1).reshape(-1)).astype(int)
+        y_true.extend(y_test.reshape(y_test.shape[0]))
+        y_pred.extend(predict)
+    report = classification_report(y_true, y_pred)
+    with open(report_path, "w") as report_file:
+        report_file.write(report)
+        report_file.write("\n" + comment + "\n")
 
 
 if __name__ == '__main__':
