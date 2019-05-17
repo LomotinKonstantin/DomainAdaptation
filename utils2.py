@@ -45,10 +45,12 @@ def vector_chunk_generator(path: str,
                                      chunk_size,
                                      from_line=from_line,
                                      to_line=to_line):
+        vec_lst = []
         for i in chunk.index:
-            chunk.at[i, "vectors"] = raw_to_vec(chunk.loc[i, "reviewText"],
-                                                preprocessor,
-                                                w2v_model).tolist()
+            vec_lst.append(raw_to_vec(chunk.loc[i, "reviewText"],
+                                      preprocessor,
+                                      w2v_model))
+        chunk["vectors"] = vec_lst
         yield chunk
 
 
