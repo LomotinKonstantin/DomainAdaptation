@@ -159,7 +159,7 @@ def train_and_test_on_target(model, ae: bool,
 if __name__ == '__main__':
     timestamp = get_timestamp()
     data_folder = "../data/"
-    report_folder = f"../report/{timestamp}/"
+    report_folder = f"../reports/{timestamp}/"
     model_folder = f"../models/{timestamp}/"
     os.mkdir(report_folder)
     os.mkdir(model_folder)
