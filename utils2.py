@@ -15,13 +15,14 @@ def raw_chunk_generator(path: str,
                         chunk_size: int,
                         from_line: int = 0,
                         to_line: int = 0) -> pd.DataFrame:
+    assert to_line >= from_line
     chunk = []
     columns = ("reviewText", "overall")
     with gzip.open(path) as fp:
         for line_num, json_line in enumerate(fp):
             if line_num < from_line:
                 continue
-            if to_line > 0 and line_num <= to_line:
+            if to_line > 0 and line_num == to_line:
                 yield pd.DataFrame(chunk) if chunk else pd.DataFrame(columns=columns)
                 return
             parsed_line = json.loads(json_line, object_pairs_hook=OrderedDict)
@@ -128,6 +129,32 @@ def infinite_tr_vect_gen(files: list,
                                     test_percent=test_percent)
         for chunk in g:
             yield chunk
+
+
+def train_model(model,
+                train_files: list,
+                batch_size: int,
+                epochs: int,
+                ae: bool,
+                line_count_hint: dict,
+                test_percent: float,
+                w2v_model: Word2Vec,
+                verbose=0,
+                noise_decorator=None):
+    callbacks = []
+    generator = infinite_tr_vect_gen(files=train_files,
+                                     test_percent=test_percent,
+                                     chunk_size=batch_size,
+                                     line_counts=line_count_hint,
+                                     autoencoder=ae,
+                                     w2v_model=w2v_model)
+    steps_per_epoch = sum(line_count_hint.values()) * (1 - test_percent) / batch_size
+    steps_per_epoch = int(steps_per_epoch)
+    model.fit_generator(generator,
+                        steps_per_epoch=steps_per_epoch,
+                        epochs=epochs,
+                        verbose=verbose,
+                        callbacks=callbacks)
 
 
 if __name__ == '__main__':
