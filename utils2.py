@@ -1,6 +1,8 @@
 from collections import OrderedDict
+from datetime import datetime
 import gzip
 import json
+import os
 
 import numpy as np
 import pandas as pd
@@ -67,6 +69,65 @@ def text_to_matr(text: str, w2v_model: Word2Vec) -> np.array:
         except KeyError:
             pass
     return np.array(vec_lst)
+
+
+def get_timestamp() -> str:
+    timestamp = datetime.today().strftime("%d-%b-%Y__%X")
+    timestamp = timestamp.replace(":", "-")
+    return timestamp
+
+
+def append_timestamp(path: str) -> str:
+    parts = os.path.split(path)
+    filename = parts[-1]
+    filename_parts = filename.split(".")
+    new_filename = ".".join([".".join(filename_parts[:-1]) + "_" + get_timestamp(),
+                             filename_parts[-1]])
+    return os.path.join(*parts[:-1], new_filename)
+
+
+def training_data_generator(files: list,
+                            test_percent: float,
+                            chunk_size: int,
+                            w2v_model: Word2Vec,
+                            line_counts: dict,
+                            autoencoder: bool) -> np.array:
+    for i in files:
+        assert os.path.exists(i)
+        assert i in line_counts
+    assert 0 < test_percent < 1
+    assert chunk_size > 0
+    for fname in files:
+        to_line = int(line_counts[fname] * (1 - test_percent))
+        gen = vector_chunk_generator(fname,
+                                     chunk_size=chunk_size,
+                                     w2v_model=w2v_model, to_line=to_line)
+        for chunk in gen:
+            x = chunk["vectors"].values
+            y = chunk["overall"].values
+            y[y <= 3] = 0
+            y[y > 3] = 1
+            if autoencoder:
+                yield x, x
+            else:
+                yield x, y
+
+
+def infinite_tr_vect_gen(files: list,
+                         test_percent: float,
+                         chunk_size: int,
+                         w2v_model: Word2Vec,
+                         line_counts: dict,
+                         autoencoder: bool) -> np.array:
+    while True:
+        g = training_data_generator(files=files,
+                                    chunk_size=chunk_size,
+                                    w2v_model=w2v_model,
+                                    line_counts=line_counts,
+                                    autoencoder=autoencoder,
+                                    test_percent=test_percent)
+        for chunk in g:
+            yield chunk
 
 
 if __name__ == '__main__':
