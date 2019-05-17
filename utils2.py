@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 import pandas as pd
+from keras.callbacks import ModelCheckpoint
 from gensim.models import Word2Vec
 from sklearn.metrics import classification_report
 
@@ -123,7 +124,7 @@ def test_data_generator(files: list,
     for i in files:
         assert os.path.exists(i)
         assert i in line_counts
-    assert 0 < test_percent < 1
+    assert 0 <= test_percent <= 1
     assert chunk_size > 0
     for fname in files:
         from_line = int(line_counts[fname] * (1 - test_percent)) + 1
@@ -163,9 +164,10 @@ def train_model(model,
                 line_count_hint: dict,
                 test_percent: float,
                 w2v_model: Word2Vec,
+                checkpoint_fpath: str,
                 verbose=0,
                 noise_decorator=None):
-    callbacks = []
+    callbacks = [ModelCheckpoint(checkpoint_fpath, save_best_only=True, period=10)]
     generator = infinite_tr_vect_gen(files=train_files,
                                      test_percent=test_percent,
                                      chunk_size=batch_size,
@@ -211,7 +213,7 @@ def test_model(model,
     report = classification_report(y_true, y_pred)
     with open(report_path, "w") as report_file:
         report_file.write(report)
-        report_file.write("\n" + comment + "\n")
+        report_file.write(f"\n{comment}\n")
 
 
 if __name__ == '__main__':
