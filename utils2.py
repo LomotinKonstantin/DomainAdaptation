@@ -13,6 +13,21 @@ from sklearn.metrics import classification_report
 from preprocessor import Preprocessor
 
 
+def pad_vector(vector: list, padding_size: int) -> np.ndarray:
+    if len(vector) == 0:
+        array = np.zeros([1, 128])
+    else:
+        array = np.array([np.array(sublist) for sublist in vector])
+    res = np.pad(array, ((0, padding_size - len(array)), (0, 0)),
+                 mode='constant', constant_values=0.0)
+    return res
+
+
+def process_batch(batch: pd.DataFrame):
+    max_len = max(map(len, batch["vectors"]))
+    batch["vectors"] = batch["vectors"].apply(pad_vector, args=[max_len])
+
+
 def raw_chunk_generator(path: str,
                         chunk_size: int,
                         from_line: int = 0,
@@ -56,6 +71,7 @@ def vector_chunk_generator(path: str,
                                       preprocessor,
                                       w2v_model))
         chunk["vectors"] = vec_lst
+        process_batch(chunk)
         yield chunk
 
 
