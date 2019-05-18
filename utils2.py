@@ -236,7 +236,8 @@ if __name__ == '__main__':
     w2v = Word2Vec.load("../models/w2v_5dom.model")
     gen = train_data_generator(["../data/Kindle_Store_5.json.gz"],
                                line_counts= {"../data/Kindle_Store_5.json.gz": 982_619},
-                               chunk_size=10, w2v_model=w2v, autoencoder=False,
+                               chunk_size=100, w2v_model=w2v, autoencoder=False,
                                test_percent=0.3)
-    chunk = next(gen)
-    print(chunk)
+    x, y = next(gen)
+    print(x.shape)
+    print(np.unique(y, return_counts=True))
