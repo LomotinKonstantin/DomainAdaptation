@@ -218,7 +218,9 @@ def test_model(model,
 
 if __name__ == '__main__':
     w2v = Word2Vec.load("../models/w2v_5dom.model")
-    gen = vector_chunk_generator("../data/Kindle_Store_5.json.gz",
-                                 chunk_size=10, to_line=10, from_line=100, w2v_model=w2v)
-    df = next(gen)
-    print(df)
+    gen = train_data_generator(["../data/Kindle_Store_5.json.gz"],
+                               line_counts= {"../data/Kindle_Store_5.json.gz": 982_619},
+                               chunk_size=10, w2v_model=w2v, autoencoder=False,
+                               test_percent=0.3)
+    chunk = next(gen)
+    print(chunk)
