@@ -17,8 +17,8 @@ line_counts = {
     "../data/Movies_and_TV_5.json.gz": 1_697_533
 }
 
-epochs = 50
-batch_size = 1000
+epochs = 5
+batch_size = 50
 test_percent = 0.3
 w2v_model = Word2Vec.load("../models/w2v_5dom.model")
 train_files = list(line_counts.keys())
