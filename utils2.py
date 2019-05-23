@@ -3,6 +3,7 @@ from datetime import datetime
 import gzip
 import json
 import os
+import pickle
 
 import numpy as np
 import pandas as pd
@@ -26,6 +27,14 @@ def pad_vector(vector: list, padding_size: int) -> np.ndarray:
 def process_batch(batch: pd.DataFrame):
     max_len = max(map(len, batch["vectors"]))
     batch["vectors"] = batch["vectors"].apply(pad_vector, args=[max_len])
+
+
+def process_vec_batch(vectors: list) -> np.array:
+    max_len = max(map(len, vectors))
+    res = np.array(list(map(lambda a: pad_vector(a, max_len), vectors)))
+    assert res.shape[0] == len(vectors)
+    assert res.shape[1] == max_len, f"{res.shape[2]} != {max_len}"
+    return res
 
 
 def raw_chunk_generator(path: str,
@@ -59,6 +68,7 @@ def vector_chunk_generator(path: str,
                            w2v_model: Word2Vec,
                            from_line: int = 0,
                            to_line: int = 0,
+                           pad=True
                            ) -> pd.DataFrame:
     preprocessor = Preprocessor()
     for chunk in raw_chunk_generator(path,
@@ -71,7 +81,8 @@ def vector_chunk_generator(path: str,
                                       preprocessor,
                                       w2v_model))
         chunk["vectors"] = vec_lst
-        process_batch(chunk)
+        if pad:
+            process_batch(chunk)
         yield chunk
 
 
@@ -234,10 +245,45 @@ def test_model(model,
         report_file.write(f"\n{comment}\n")
 
 
+def _pickle_gen(pickle_file: str):
+    with open(pickle_file, "rb") as fp:
+        while 1:
+            try:
+                yield pickle.load(fp)
+            except EOFError:
+                return
+
+
+def pickle_vectors_generator(pickle_file: str, batch_size: int, from_line=0, to_line=-1):
+    x = []
+    y = []
+    for n, line in enumerate(_pickle_gen(pickle_file)):
+        if n < from_line:
+            continue
+        x.append(line[0])
+        y.append(line[1])
+        if len(x) == batch_size or n == to_line:
+            y = np.array(list(y))
+            y[y <= 3] = 0
+            y[y > 3] = 1
+            y = y.reshape([-1, 1, 1])
+            yield process_vec_batch(x), y
+            if n == to_line:
+                return
+            x = []
+            y = []
+    if x and y:
+        y = np.array(y)
+        y[y <= 3] = 0
+        y[y > 3] = 1
+        y = y.reshape([-1, 1, 1])
+        yield process_vec_batch(x), y
+
+
 if __name__ == '__main__':
     w2v = Word2Vec.load("../models/w2v_5dom.model")
     gen = train_data_generator(["../data/Kindle_Store_5.json.gz"],
-                               line_counts= {"../data/Kindle_Store_5.json.gz": 982_619},
+                               line_counts={"../data/Kindle_Store_5.json.gz": 982_619},
                                chunk_size=100, w2v_model=w2v, autoencoder=False,
                                test_percent=0.3)
     x, y = next(gen)
