@@ -246,7 +246,7 @@ def test_model(model,
 
 
 def _pickle_gen(pickle_file: str):
-    with open(pickle_file, "rb") as fp:
+    with gzip.open(pickle_file, "rb") as fp:
         while 1:
             try:
                 yield pickle.load(fp)

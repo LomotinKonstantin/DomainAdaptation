@@ -1,3 +1,4 @@
+import gzip
 import os
 import pickle
 
@@ -25,7 +26,7 @@ def create_vectors(in_file: str,
                                  chunk_size=batch_size,
                                  w2v_model=w2v_model,
                                  pad=False)
-    with open(out_file, "ab") as out_fp:
+    with gzip.open(out_file, "ab") as out_fp:
         for n, chunk in enumerate(gen, 1):  # type: pd.DataFrame
             # print(f"Chunk {n}")
             for line in chunk.index:
@@ -63,7 +64,7 @@ def _test():
 if __name__ == '__main__':
     for fname in data_files:
         print(f"Vectorizing {fname}")
-        out_file = fname.split(".json.gz")[0] + "_vec.pkl"
+        out_file = fname.split(".json.gz")[0] + "_vec.pkl.gz"
         w2v = Word2Vec.load("../models/w2v_5dom.model")
         create_vectors(in_file=fname,
                        out_file=out_file,
