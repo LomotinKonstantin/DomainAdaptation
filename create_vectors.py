@@ -9,8 +9,8 @@ import pandas as pd
 from utils2 import vector_chunk_generator, pickle_vectors_generator
 
 data_files = {
-    "../data/Apps_for_Android_5.json.gz": 752_937,
-    "../data/CDs_and_Vinyl_5.json.gz": 1_097_592,
+    # "../data/Apps_for_Android_5.json.gz": 752_937,
+    # "../data/CDs_and_Vinyl_5.json.gz": 1_097_592,
     "../data/Electronics_5.json.gz": 1_689_188,
     "../data/Kindle_Store_5.json.gz": 982_619,
     "../data/Movies_and_TV_5.json.gz": 1_697_533

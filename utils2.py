@@ -193,10 +193,10 @@ def train_model(model,
                 line_count_hint: dict,
                 test_percent: float,
                 w2v_model: Word2Vec,
-                checkpoint_fpath: str,
+                # checkpoint_fpath: str,
                 verbose=1,
                 noise_decorator=None):
-    callbacks = [ModelCheckpoint(checkpoint_fpath, save_best_only=True, period=10)]
+    # callbacks = [ModelCheckpoint(checkpoint_fpath, save_best_only=True, period=10)]
     generator = infinite_tr_vect_gen(files=train_files,
                                      test_percent=test_percent,
                                      chunk_size=batch_size,
@@ -211,7 +211,8 @@ def train_model(model,
                         steps_per_epoch=steps_per_epoch,
                         epochs=epochs,
                         verbose=verbose,
-                        callbacks=callbacks)
+                        # callbacks=callbacks
+                        )
 
 
 def test_model(model,

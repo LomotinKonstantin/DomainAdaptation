@@ -2,7 +2,7 @@ import os
 
 from gensim.models import Word2Vec
 import keras.backend as K
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, LSTM, Input
 from numpy.random import normal
 
@@ -17,13 +17,14 @@ line_counts = {
     "../data/Movies_and_TV_5.json.gz": 1_697_533
 }
 
-epochs = 5
+epochs = 1
 batch_size = 50
 test_percent = 0.3
 w2v_model = Word2Vec.load("../models/w2v_5dom.model")
 train_files = list(line_counts.keys())
 source_domain = "Movies_and_TV_5.json.gz"
 target_domains = [i for i in train_files if i != source_domain]
+data_folder = "../data/"
 
 
 def domain_name_from_file(fname: str) -> str:
@@ -108,10 +109,10 @@ def create_DANN():
     return classifier_model, domain_adapt_model, comb_model
 
 
-def train_on_source(model, ae: bool, cp_fp: str):
+def train_on_source(model, ae: bool):
     train_model(model, train_files=[f"../data/{source_domain}"], batch_size=batch_size,
                 epochs=epochs, ae=ae, line_count_hint=line_counts,
-                test_percent=test_percent, w2v_model=w2v_model, checkpoint_fpath=cp_fp)
+                test_percent=test_percent, w2v_model=w2v_model)
 
 
 def test_on_source(model, report_path: str):
@@ -136,14 +137,12 @@ def train_and_test_on_target(model, ae: bool,
     for i in target_domains:
         path = f"../data/{i}"
         domain = domain_name_from_file(i)
-        cp_fp = model_folder + f"{model_name}_target_{domain}_" \
-                + "{epoch}" + "_.hdf5"
         report_path = report_folder + f"{model_name}_target-target_{domain}.csv"
         print(f"Training on {i}")
         train_model(model, train_files=[path],
                     batch_size=batch_size, epochs=epochs, ae=ae,
                     line_count_hint=line_counts, test_percent=test_percent,
-                    w2v_model=w2v_model, checkpoint_fpath=cp_fp)
+                    w2v_model=w2v_model)
         print(f"Testing on {i}")
         test_model(model, batch_size=batch_size, line_count_hint=line_counts,
                    test_paths=[path], test_percent=test_percent, w2v_model=w2v_model,
