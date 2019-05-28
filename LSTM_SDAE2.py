@@ -13,14 +13,15 @@ if __name__ == '__main__':
     model = None
     for latent_space_dim in [128, 72, 64]:
         model = create_AE_model(latent_space_dim, 128, model)
-        print(f"Training AE layers {latent_space_dim}")
+        print(f"Training SDAE layers {latent_space_dim}")
         train_model(model, train_files=train_files, batch_size=batch_size,
                     epochs=epochs, ae=True, line_count_hint=line_counts,
                     test_percent=test_percent, w2v_model=w2v_model,
                     noise_decorator=gaussian_noise)
         model.layers.pop()
     model = create_lstm_classifier(model)
-    model.save(model_folder + "SDAE_LSTM_clear.hdf5")
+    clear_path = model_folder + "SDAE_LSTM_clear.hdf5"
+    model.save(clear_path)
     print("Training SDAE+LSTM on source")
     train_on_source(model, False)
     model.save(model_folder + "SDAE_LSTM_source.hdf5")
@@ -29,7 +30,5 @@ if __name__ == '__main__':
     print("Testing SDAE+LSTM on target")
     test_on_target(model, report_folder + "SDAE_LSTM_source-target.csv")
     print("Training and testing SDAE+LSTM on target")
-    model = load_model(model_folder + "SDAE_LSTM_clear.hdf5")
-    train_and_test_on_target(model, ae=False, model_name="AE_LSTM",
+    train_and_test_on_target(clear_model=clear_path, ae=False, model_name="SDAE_LSTM",
                              report_folder=report_folder, model_folder=model_folder)
-    model.save(model_folder + "SDAE_LSTM_target.hdf5")

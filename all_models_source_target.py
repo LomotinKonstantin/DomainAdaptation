@@ -22,7 +22,7 @@ batch_size = 50
 test_percent = 0.3
 w2v_model = Word2Vec.load("../models/w2v_5dom.model")
 train_files = list(line_counts.keys())
-source_domain = "Movies_and_TV_5.json.gz"
+source_domain = "../data/Movies_and_TV_5.json.gz"
 target_domains = [i for i in train_files if i != source_domain]
 data_folder = "../data/"
 
@@ -93,7 +93,6 @@ def create_DANN():
     # Classification layers
     classifier = LSTM(128, return_sequences=True)(feature_extractor)
     classifier = Dense(128, activation='relu')(classifier)
-    classifier = Dense(64, activation='relu')(classifier)
     classifier = Dense(32, activation='relu')(classifier)
     classifier = Dense(1, activation="softmax", name="classifier")(classifier)
 
@@ -110,43 +109,45 @@ def create_DANN():
 
 
 def train_on_source(model, ae: bool):
-    train_model(model, train_files=[f"../data/{source_domain}"], batch_size=batch_size,
+    train_model(model, train_files=[source_domain], batch_size=batch_size,
                 epochs=epochs, ae=ae, line_count_hint=line_counts,
                 test_percent=test_percent, w2v_model=w2v_model)
 
 
 def test_on_source(model, report_path: str):
     test_model(model, batch_size=batch_size, line_count_hint=line_counts,
-               test_paths=[f"../data/{source_domain}"], test_percent=test_percent,
+               test_paths=[source_domain], test_percent=test_percent,
                w2v_model=w2v_model, report_path=report_path)
 
 
 def test_on_target(model, report_path_with_format: str):
     for i in target_domains:
-        path = f"../data/{i}"
+        path = i
         print(f"Testing on {i}")
         test_model(model, batch_size=batch_size, line_count_hint=line_counts,
                    test_paths=[path], test_percent=test_percent, w2v_model=w2v_model,
                    report_path=report_path_with_format.format(domain_name_from_file(i)))
 
 
-def train_and_test_on_target(model, ae: bool,
+def train_and_test_on_target(ae: bool,
                              model_name: str,
                              report_folder: str,
-                             model_folder: str):
+                             model_folder: str,
+                             clear_model: str):
     for i in target_domains:
-        path = f"../data/{i}"
+        model = load_model(clear_model)
         domain = domain_name_from_file(i)
         report_path = report_folder + f"{model_name}_target-target_{domain}.csv"
         print(f"Training on {i}")
-        train_model(model, train_files=[path],
+        train_model(model, train_files=[i],
                     batch_size=batch_size, epochs=epochs, ae=ae,
                     line_count_hint=line_counts, test_percent=test_percent,
                     w2v_model=w2v_model)
         print(f"Testing on {i}")
         test_model(model, batch_size=batch_size, line_count_hint=line_counts,
-                   test_paths=[path], test_percent=test_percent, w2v_model=w2v_model,
+                   test_paths=[i], test_percent=test_percent, w2v_model=w2v_model,
                    report_path=report_path)
+        model.save(model_folder + f"{model_name}_{domain_name_from_file(i)}.hdf5")
 
 
 # 1. Обучить на source без адаптации

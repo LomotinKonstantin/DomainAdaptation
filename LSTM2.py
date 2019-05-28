@@ -11,7 +11,8 @@ if __name__ == '__main__':
 
     model = create_lstm_classifier()
     report_path = report_folder + "LSTM_source-source.csv"
-    model.save(model_folder + "LSTM_clear.hdf5")
+    clear_path = model_folder + "LSTM_clear.hdf5"
+    model.save(clear_path)
     print("Training LSTM")
     train_on_source(model, ae=False)
     model.save(model_folder + "LSTM_source.hdf5")
@@ -21,7 +22,5 @@ if __name__ == '__main__':
     print("Testing LSTM on target")
     test_on_target(model, report_path)
     print("Training and testing LSTM on target")
-    model = load_model(model_folder + "LSTM_clear.hdf5")
-    train_and_test_on_target(model, ae=False, model_name="LSTM",
+    train_and_test_on_target(clear_model=clear_path, ae=False, model_name="LSTM",
                              report_folder=report_folder, model_folder=model_folder)
-    model.save(model_folder + "LSTM_target.hdf5")
