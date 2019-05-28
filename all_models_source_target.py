@@ -18,7 +18,7 @@ line_counts = {
 }
 
 epochs = 1
-batch_size = 50
+batch_size = 100
 test_percent = 0.3
 w2v_model = Word2Vec.load("../models/w2v_5dom.model")
 train_files = list(line_counts.keys())
