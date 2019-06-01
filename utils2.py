@@ -41,7 +41,7 @@ def raw_chunk_generator(path: str,
                         chunk_size: int,
                         from_line: int = 0,
                         to_line: int = 0) -> pd.DataFrame:
-    assert to_line >= from_line
+    # assert to_line >= from_line
     chunk = []
     columns = ("reviewText", "overall")
     with gzip.open(path) as fp:
