@@ -162,6 +162,7 @@ def test_data_generator(files: list,
                                      w2v_model=w2v_model, from_line=from_line)
         for chunk in gen:
             x = chunk["vectors"].values
+            x = np.array(list(x))
             y = chunk["overall"].values
             y[y <= 3] = 0
             y[y > 3] = 1
