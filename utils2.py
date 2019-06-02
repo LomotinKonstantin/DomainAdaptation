@@ -165,6 +165,7 @@ def test_data_generator(files: list,
             y = chunk["overall"].values
             y[y <= 3] = 0
             y[y > 3] = 1
+            y = y.reshape([-1, 1, 1])
             yield x, y
 
 
