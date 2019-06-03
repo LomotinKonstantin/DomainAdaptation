@@ -4,8 +4,8 @@ from all_models_source_target import *
 if __name__ == '__main__':
     timestamp = get_timestamp()
     data_folder = "../data/"
-    report_folder = f"../reports/{timestamp}/"
-    model_folder = f"../models/{timestamp}/"
+    report_folder = f"../reports/SDAE_{timestamp}/"
+    model_folder = f"../models/SDAE_{timestamp}/"
     os.mkdir(report_folder)
     os.mkdir(model_folder)
 
