@@ -28,7 +28,8 @@ data_folder = "../data/"
 
 
 def domain_name_from_file(fname: str) -> str:
-    return fname.split("_5")[0]
+    part = fname.split("_5")[0]
+    return part.split("/")[-1]
 
 
 def gaussian_noise(generator, ae: bool):
