@@ -6,8 +6,8 @@ if __name__ == '__main__':
     data_folder = "../data/"
     report_folder = "../reports/28-May-2019__03-06-08/"
     model_folder = "../models/28-May-2019__03-06-08/"
-    os.mkdir(report_folder)
-    os.mkdir(model_folder)
+    # os.mkdir(report_folder)
+    # os.mkdir(model_folder)
 
     # model = create_lstm_classifier()
     # report_path = report_folder + "LSTM_source-source.csv"
