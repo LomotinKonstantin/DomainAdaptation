@@ -124,9 +124,10 @@ def test_on_target(model, report_path_with_format: str):
     for i in target_domains:
         path = i
         print(f"Testing on {i}")
+        report_path = report_path_with_format.format(domain_name_from_file(i))
         test_model(model, batch_size=batch_size, line_count_hint=line_counts,
                    test_paths=[path], test_percent=test_percent, w2v_model=w2v_model,
-                   report_path=report_path_with_format.format(domain_name_from_file(i)))
+                   report_path=report_path)
 
 
 def train_and_test_on_target(ae: bool,
