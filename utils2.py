@@ -226,7 +226,7 @@ def test_model(model,
                batch_size: int,
                comment="",
                norm=False):
-    assert os.path.exists(report_path)
+    # assert os.path.exists(report_path)
     y_true = []
     y_pred = []
     cntr = 1

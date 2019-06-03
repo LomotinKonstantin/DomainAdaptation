@@ -19,8 +19,7 @@ def train_dom_disc(dom_disc):
                                       test_percent=test_percent)
     for i in range(epochs):
         print(f"DANN dom_disc training epoch #{i}")
-        for j in range(line_counts[source_domain] // batch_size):
-            X_s, y_s = next(source_gen)
+        for j, (X_s, y_s) in source_gen:
             # Source domain кодируем 0
             domain_s = np.zeros(y_s.shape)
             X_t, y_t = next(target_gen)
