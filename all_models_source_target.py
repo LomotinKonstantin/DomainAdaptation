@@ -9,12 +9,20 @@ from numpy.random import normal
 from utils2 import get_timestamp, train_model, test_model
 from gradient_reversal_keras_tf.flipGradientTF import GradientReversal
 
+# line_counts = {
+#     "../data/Apps_for_Android_5.json.gz": 752_937,
+#     "../data/CDs_and_Vinyl_5.json.gz": 1_097_592,
+#     "../data/Electronics_5.json.gz": 1_689_188,
+#     "../data/Kindle_Store_5.json.gz": 982_619,
+#     "../data/Movies_and_TV_5.json.gz": 1_697_533
+# }
+
 line_counts = {
-    "../data/Apps_for_Android_5.json.gz": 752_937,
-    "../data/CDs_and_Vinyl_5.json.gz": 1_097_592,
-    "../data/Electronics_5.json.gz": 1_689_188,
-    "../data/Kindle_Store_5.json.gz": 982_619,
-    "../data/Movies_and_TV_5.json.gz": 1_697_533
+    "../data/Apps_for_Android_5.json.gz": 100_000,
+    "../data/CDs_and_Vinyl_5.json.gz": 100_000,
+    "../data/Electronics_5.json.gz": 100_000,
+    "../data/Kindle_Store_5.json.gz": 100_000,
+    "../data/Movies_and_TV_5.json.gz": 100_000,
 }
 
 epochs = 1

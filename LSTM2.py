@@ -16,12 +16,12 @@ if __name__ == '__main__':
     # print("Training LSTM")
     # train_on_source(model, ae=False)
     # model.save(model_folder + "LSTM_source.hdf5")
-    model = load_model(model_folder + "LSTM_source.hdf5")
+    # model = load_model(model_folder + "LSTM_source.hdf5")
     # print("Testing LSTM on source")
     # test_on_source(model, report_path)
-    report_path = report_folder + "LSTM_source-target_{}.csv"
-    print("Testing LSTM on target")
-    test_on_target(model, report_path)
+    # report_path = report_folder + "LSTM_source-target_{}.csv"
+    # print("Testing LSTM on target")
+    # test_on_target(model, report_path)
     print("Training and testing LSTM on target")
     train_and_test_on_target(clear_model=clear_path, ae=False, model_name="LSTM",
                              report_folder=report_folder, model_folder=model_folder)
