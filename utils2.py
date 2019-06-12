@@ -25,7 +25,9 @@ def pad_vector(vector: list, padding_size: int) -> np.ndarray:
 
 
 def process_batch(batch: pd.DataFrame):
-    lens = map(len, batch["vectors"])
+    if len(batch) == 0:
+        return
+    lens = list(map(len, batch["vectors"]))
     if not lens:
         return
     max_len = max(lens)
