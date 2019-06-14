@@ -4,7 +4,8 @@ from gensim.models import Word2Vec
 import keras.backend as K
 from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, LSTM, Input
-from numpy.random import normal
+from numpy.random import normal, randint
+import numpy as np
 
 from utils2 import get_timestamp, train_model, test_model
 from gradient_reversal_keras_tf.flipGradientTF import GradientReversal
@@ -25,6 +26,7 @@ line_counts = {
     "../data/Movies_and_TV_5.json.gz": 100_000,
 }
 
+BIN_DROP = 0.1
 epochs = 1
 batch_size = 100
 test_percent = 0.3
@@ -47,6 +49,21 @@ def gaussian_noise(generator, ae: bool):
                 yield X + normal(0, 0.02, X.shape), X
             else:
                 yield X + normal(0, 0.02, X.shape), y
+
+    return noise_gen()
+
+
+def binary_noise(generator, ae: bool):
+    def noise_gen():
+        for X, y in generator:
+            for n, matr in enumerate(X):
+                x_indices = randint(0, matr.shape[0], size=BIN_DROP * matr.shape[0])
+                y_indices = randint(0, matr.shape[1], size=BIN_DROP * matr.shape[1])
+                X[n, x_indices, y_indices] = 0
+            if ae:
+                yield X, X
+            else:
+                yield X, y
 
     return noise_gen()
 
