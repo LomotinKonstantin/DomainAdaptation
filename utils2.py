@@ -189,6 +189,8 @@ def infinite_tr_vect_gen(files: list,
                                  autoencoder=autoencoder,
                                  test_percent=test_percent)
         for chunk in g:
+            if len(chunk) == 0:
+                continue
             yield chunk
 
 
