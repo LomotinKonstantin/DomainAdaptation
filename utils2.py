@@ -53,8 +53,9 @@ def raw_chunk_generator(path: str,
         for line_num, json_line in enumerate(fp):
             if line_num < from_line:
                 continue
-            if to_line > 0 and line_num == to_line:
-                yield pd.DataFrame(chunk) if chunk else pd.DataFrame(columns=columns)
+            if to_line > 0 and line_num > to_line:
+                if chunk:
+                    yield pd.DataFrame(chunk)
                 return
             parsed_line = json.loads(json_line, object_pairs_hook=OrderedDict)
             parsed_line["reviewText"] += " " + parsed_line["summary"]

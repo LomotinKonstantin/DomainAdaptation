@@ -17,7 +17,7 @@ if __name__ == '__main__':
         train_model(model, train_files=train_files, batch_size=batch_size,
                     epochs=epochs, ae=True, line_count_hint=line_counts,
                     test_percent=test_percent, w2v_model=w2v_model,
-                    noise_decorator=gaussian_noise)
+                    noise_decorator=binary_noise)
         model.layers.pop()
     model = create_lstm_classifier(model)
     clear_path = model_folder + "SDAE_LSTM_clear.hdf5"

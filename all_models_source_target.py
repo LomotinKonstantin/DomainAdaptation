@@ -64,7 +64,6 @@ def binary_noise(generator, ae: bool):
                 yield X, X
             else:
                 yield X, y
-
     return noise_gen()
 
 
