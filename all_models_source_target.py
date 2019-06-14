@@ -57,9 +57,10 @@ def binary_noise(generator, ae: bool):
     def noise_gen():
         for X, y in generator:
             for n, matr in enumerate(X):
-                x_indices = randint(0, matr.shape[0], size=int(BIN_DROP * matr.shape[0]))
-                y_indices = randint(0, matr.shape[1], size=int(BIN_DROP * matr.shape[1]))
-                X[n, x_indices, y_indices] = 0
+                res = np.ravel(matr)
+                indices = randint(0, len(res), size=int(BIN_DROP * len(res)))
+                res[indices] = 0
+                X[n] = res.reshape(matr.shape)
             if ae:
                 yield X, X
             else:
