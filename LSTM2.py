@@ -4,7 +4,7 @@ from all_models_source_target import *
 if __name__ == '__main__':
     timestamp = get_timestamp()
     data_folder = "../data/"
-    report_folder = "../reports/28-May-2019__03-06-08/"
+    report_folder = "../reports/LSTM_28-May-2019__03-06-08/"
     model_folder = "../models/28-May-2019__03-06-08/"
     # os.mkdir(report_folder)
     # os.mkdir(model_folder)
